@@ -37,8 +37,8 @@ def simulation(env,genotype,display=True):
 
     print("%d timesteps took %f seconds" % (i, now - then))
 
-    #print(env.get_robot_pos())    
-    return env.get_robot_pos()    # x,y,theta    ?? pourquoi theta??? to do
+    x,y,theta = env.get_robot_pos()    # x,y,theta    ?? pourquoi theta??? to do
+    return x,y    
 
 
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=True):
@@ -47,7 +47,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     
     #create class
     creator.create("FitnessMax",base.Fitness,weights=(1.0,))
-    creator.create("Individual",list,fitness=creator.FitnessMax,pos=list)
+    creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,novelty=float)
     # toolbox
     toolbox = base.Toolbox()
     toolbox.register("attr_float", np.random.normal)
@@ -69,9 +69,15 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
     # generer la population initiale
     pop = toolbox.population(size_pop)
-    # evaluation
+    # simulation
     for ind in pop:
-        ind.fitness.values = eval_nn(env,ind)
+        ind.bd = simulation(env,ind)
+    # MAJ archive
+    arc = NovArchive([],k = 15)
+    arc = updateNovelty(pop,pop,arc,k=15)    
+    # MAJ fitness
+    for ind in pop:
+        ind.fitness.values = ind.novelty
 
     # Update the hall of fame with the generated individuals
     halloffame.update(pop)
@@ -96,17 +102,21 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
                 del child1.fitness.values
                 del child2.fitness.values
 
-
         #mutation
         for mutant in offspring:
             if np.random.random() < pb_mutation:
                 tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
                 del mutant.fitness.values
 
-        # evaluation
+        # simulation
         invalid_inds = [ind for ind in offspring if ind.fitness.valid == False]
         for ind in invalid_inds:
-            ind.fitness.values = eval_nn(env,ind)
+            ind.bd = eval_nn(env,ind)
+        # MAJ archive
+        arc = updateNovelty(offspring,offspring,arc,k=15)  #Update the novelty criterion (including archive update) 
+        # MAJ fitness
+        for ind in offspring:
+            ind.fitness.values = ind.novelty,
 
         # remplacement
         pop[:] = offspring
@@ -128,11 +138,13 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
 
 nn=SimpleNeuralControllerNumpy(5,2,2,5)
-print(len(nn.get_parameters()))
+#print(len(nn.get_parameters()))
 
 
 display= True
 env = gym.make('FastsimSimpleNavigation-v0')
 
 #simulation(env,None,True)
+es(env,size_pop=50,pb_crossover=0.1,pb_mutation=0.9,nb_generation=20,display=display,verbose=True)
+
 env.close()
