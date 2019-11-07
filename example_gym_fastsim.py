@@ -13,7 +13,7 @@ display= True
 
 env = gym.make('FastsimSimpleNavigation-v0')
 env.reset()
-action=[2,1]
+action=[10,0]
 if(display):
 	env.enable_display()
 
