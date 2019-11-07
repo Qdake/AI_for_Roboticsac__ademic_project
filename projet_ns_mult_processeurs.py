@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import multiprocessing
+import os, time
 import gym, gym_fastsim
 import time
 import numpy as np
@@ -24,7 +25,7 @@ def simulation(env,genotype,display=True):
         env.enable_display()
     then = time.time()
 
-    for i in range(2000):
+    for i in range(200):
         env.render()
         action=nn.predict(observation)
         action = [i * env.maxVel for i in action]
@@ -48,10 +49,6 @@ def simulation(env,genotype,display=True):
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
     IND_SIZE = 72
-    
-    n_test = 1
-    print("test ",n_test)
-    n_test += 1
 
     #create class
     creator.create("FitnessMax",base.Fitness,weights=(1.0,))
@@ -81,17 +78,9 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     # generer la population initiale
     pop = toolbox.population(size_pop)
     # simulation
-
-    print("test **",n_test)
-    n_test += 1
-
     for ind in pop:
         ind.bd = simulation(env,ind,display=display)
         position_record.append(ind.bd)
-    print("test 3 ",n_test)
-    n_test += 1
-    #print(pop[0])
-    #print([ind.bd for ind in pop])
 
     # MAJ archive
     arc = updateNovelty(pop,pop,None)    
@@ -100,9 +89,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     # MAJ fitness
     for ind in pop:
         ind.fitness.values = (ind.novelty,)
-    print("test 4 ")
-    n_test += 1
-
+    
     # Update the hall of fame with the generated individuals
     halloffame.update(pop)
     record = statistics.compile(pop)
@@ -110,8 +97,6 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     if verbose:
         print(logbook.stream)
     
-    print("test 5 ")
-
     for gen in range(1, nb_generation+1):
         print("generation ",gen)
 
@@ -132,12 +117,25 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
             if np.random.random() < pb_mutation:
                 tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
                 del mutant.fitness.values
-
         # simulation
         invalid_inds = [ind for ind in offspring if ind.fitness.valid == False]
-        for ind in invalid_inds:
-            ind.bd = simulation(env,ind,display=display)
-            position_record.append(ind.bd)
+        
+        multiprocessing.freeze_support()
+        cpus = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(cpus)
+        results = []
+
+        for i in range(len(invalid_inds)):
+            result = pool.apply_async(simulation,(env,invalid_inds[i],display))
+            results.append(result)
+
+        pool.close()
+        pool.join()
+
+        for i in range(len(results)):
+            invalid_inds[i].bd = results[i].get()
+            position_record.append(invalid_inds[i].bd)
+   
         # MAJ archive
         arc = updateNovelty(offspring,offspring,arc,k=15)  #Update the novelty criterion (including archive update) 
         # MAJ fitness
@@ -176,31 +174,35 @@ env = gym.make('FastsimSimpleNavigation-v0')
 
 but_atteint = False
 #simulation(env,None,True)
-_,_,_,position_record = es(env,nb_generation=50, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+_,_,_,position_record = es(env,nb_generation=20, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
 
 env.close()
 
 
 
-#=================== Traitement du resultat ==========================================================
-name = 'log/position_record_07_nov_18_00'
+# traitement du resultat
 import pickle
 # open a file, where you ant to store the data
-file = open(name, 'wb')     # le 07 nov  X:Y
+file = open('log/position_record_07_nov_15_14', 'wb')
+
 # dump information to that file
 pickle.dump(position_record, file)
+
 # close the file
 file.close()
 
 # plot
+
 heatmap = np.zeros((120,120))
 for i in range(10):
     for position in position_record:
         x = int(position[0]) // 5
         y = int(position[1]) // 5
-        heatmap[y][x] += 1
+        heatmap[y][x] += 10
 plt.imshow(heatmap)
-print(but_atteint)
-print(time.time()-st)
-plt.savefig(name)
-plt.show()
+#plt.show()
+print("time : ",time.time()-st)
+if but_atteint:
+    print("but_atteint")
+else:
+    print("but non atteint")
