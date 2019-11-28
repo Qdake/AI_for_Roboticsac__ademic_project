@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from novelty_search import NovArchive
 from novelty_search import updateNovelty
 import random
+from arbre_quaternaire import Quadtree
 def simulation(env,genotype,display=True):
     global but_atteint
     global size_nn
@@ -45,6 +46,16 @@ def simulation(env,genotype,display=True):
     x,y,theta = env.get_robot_pos()    # x,y,theta    ?? pourquoi theta??? to do
     return [int(x),int(y)]    
 
+def choix_a_roulette(population_list, size_pop):
+    profondeurs = [ind.profondeur for ind in population_list]
+    distribution = [pow(4,profondeur) for profondeur in profondeurs]
+    somme = sum(distribution)
+    distribution = [i/somme for i in distribution]
+    print("population list    ***  ", population_list)
+    indices = np.random.choice(list(range(len(population_list))),size_pop,replace = True,p=distribution)
+    return [population_list[i] for i in indices]
+def dist(x,y):
+    return (np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2))
 
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
@@ -53,7 +64,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
     #create class
     creator.create("FitnessMax",base.Fitness,weights=(1.0,))
-    creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,novelty=float)
+    creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=float)
     # toolbox
     toolbox = base.Toolbox()
     toolbox.register("attr_float", np.random.normal)
@@ -73,46 +84,31 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     logbook = tools.Logbook()
     logbook.header = ["gen","nevals"]+ statistics.fields
 
-    # initialisation grid
-    grid = [[None for i in range(600)] for j in range(600) ]  # hard maze est de taille 600*600
-#    for i in range(600):
-#        for j in range(600):
-#            if grid[i][j] != None:
-#                print(i," ",j)
-#    print("fin print1")
- 
+
+    # initialisation
+    population_list = list()
+    arbre = Quadtree(0,600,0,600,type="racine")
     # pour plot heatmap
     position_record = []
 
     # generer la population initiale
     pop = toolbox.population(size_pop)
-    print("****2   len(pop) **",len(pop)) #debug
+#    print("****2   len(pop) **",len(pop)) #debug
     # simulation
-
+    print("pop*****", len(pop))
     for ind in pop:
         ind.bd = simulation(env,ind,display=display)
         position_record.append(ind.bd)
-        if grid[ind.bd[0]][ind.bd[1]] == None:
-            grid[ind.bd[0]][ind.bd[1]] = ind
-    print("*******2.1 len(pop)******",len(pop))
-    for i in range(600):
-        for j in range(600):
-            if grid[i][j] != None:
-                print(i," ",j)
-    print("fin print2")
-
-    #print(pop[0])
-    #print([ind.bd for ind in pop])
-
-    # MAJ archive
-    pop = [grid[i][j] for i in range(600) for j in range(600) if (grid[i][j] != None)]
-    print("*******3 len(pop)******",len(pop)) #debug
-    arc = updateNovelty(pop,pop,None)    
-
+        print("icici")
+        succes = arbre.ajout(ind)
+        print("succes ",succes)
+        if succes:
+            population_list.append(ind)
+            print("population_list:   ",len(population_list))
 
     # MAJ fitness
     for ind in pop:
-        ind.fitness.values = (ind.novelty,)
+        ind.fitness.values = (dist(ind.bd,env.goalPos),)
    
 
     # Update the hall of fame with the generated individuals
@@ -126,7 +122,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         print("generation ",gen)
 
         # Select the next generation individuals
-        pop = toolbox.select(pop, size_pop)    # population est l'ensemble des individus qui presentent dans le grid
+        pop = choix_a_roulette(population_list,size_pop)    # population est l'ensemble des individus qui presentent dans le grid
         # Clone the selected individuals
         pop = list(map(toolbox.clone, pop))  
 
@@ -148,20 +144,12 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         for ind in invalid_inds:
             ind.bd = simulation(env,ind,display=display)
             position_record.append(ind.bd)
-            if grid[ind.bd[0]][ind.bd[1]] == None:
-                grid[ind.bd[0]][ind.bd[1]] = ind
-
-        # maj archive            
-        pop = [grid[i][j] for i in range(600) for j in range(600) if not(grid[i][j] == None)]
-        arc = updateNovelty(pop,pop,None)    #Update the novelty criterion (including archive update) 
+            if arbre.ajout(ind):
+                population_list.append(ind)
 
         # MAJ fitness
         for ind in pop:
-            ind.fitness.values = (ind.novelty,)
-
-        # pas de remplacement
-        # remplacement
-        # offspring[:] = offspring + pop
+            ind.fitness.values = (dist(ind.bd,env.goalPos),)
 
             # Update the hall of fame with the generated individuals
         halloffame.update(pop)
@@ -173,7 +161,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         if but_atteint:
             break
             
-    return pop,logbook, halloffame,position_record
+    return population_list,logbook, halloffame,position_record
 
 
 
@@ -201,8 +189,8 @@ env.close()
 from plot_result import plot
 
 #=================== Traitement du resultat ==========================================================
-nfile = 'log_MAPelites_24_nov/'
-nimg = 'position_record_24_nov_2130'
+nfile = 'log_SHINE_28_nov/'
+nimg = 'position_record_28_nov_1502'
 plot(position_record,nfile,nimg)  #plot and save
 
 print(but_atteint)
