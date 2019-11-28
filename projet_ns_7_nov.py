@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# resultat tres interessant
+
 import gym, gym_fastsim
 import time
 import numpy as np
@@ -12,7 +14,7 @@ import numpy
 import matplotlib.pyplot as plt
 from novelty_search import NovArchive
 from novelty_search import updateNovelty
-
+import random
 def simulation(env,genotype,display=True):
     global but_atteint
     global size_nn
@@ -48,10 +50,7 @@ def simulation(env,genotype,display=True):
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
     IND_SIZE = 72
-    
-    n_test = 1
-    print("test ",n_test)
-    n_test += 1
+    random.seed()
 
     #create class
     creator.create("FitnessMax",base.Fitness,weights=(1.0,))
@@ -82,14 +81,10 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     pop = toolbox.population(size_pop)
     # simulation
 
-    print("test **",n_test)
-    n_test += 1
-
     for ind in pop:
         ind.bd = simulation(env,ind,display=display)
         position_record.append(ind.bd)
-    print("test 3 ",n_test)
-    n_test += 1
+ 
     #print(pop[0])
     #print([ind.bd for ind in pop])
 
@@ -100,8 +95,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     # MAJ fitness
     for ind in pop:
         ind.fitness.values = (ind.novelty,)
-    print("test 4 ")
-    n_test += 1
+   
 
     # Update the hall of fame with the generated individuals
     halloffame.update(pop)
@@ -109,8 +103,6 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     logbook.record(gen=0, nevals=len(pop), **record)
     if verbose:
         print(logbook.stream)
-    
-    print("test 5 ")
 
     for gen in range(1, nb_generation+1):
         print("generation ",gen)
@@ -181,26 +173,12 @@ _,_,_,position_record = es(env,nb_generation=50, size_pop=100,pb_crossover=0.1,p
 env.close()
 
 
+from plot_result import plot
 
 #=================== Traitement du resultat ==========================================================
-name = 'log/position_record_07_nov_18_00'
-import pickle
-# open a file, where you ant to store the data
-file = open(name, 'wb')     # le 07 nov  X:Y
-# dump information to that file
-pickle.dump(position_record, file)
-# close the file
-file.close()
+nfile = 'log/'
+nimg = 'position_record_24_nov_14_54'
+plot(position_record,nfile,nimg)  #plot and save
 
-# plot
-heatmap = np.zeros((120,120))
-for i in range(10):
-    for position in position_record:
-        x = int(position[0]) // 5
-        y = int(position[1]) // 5
-        heatmap[y][x] += 1
-plt.imshow(heatmap)
 print(but_atteint)
 print(time.time()-st)
-plt.savefig(name)
-plt.show()

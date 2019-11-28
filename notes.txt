@@ -1,0 +1,40 @@
+NS
+initialization:  initialiser une population (---->population)
+		 evaluer chaque individu de la population
+main: pour chaque generation
+      	   selectionner les individus a reproduire parmi la population(--->p0)
+	   faire reproduire, muter et croiser les individus de p0(--->offspring)
+	   population <---- offspring
+	   evaluer chaque individu de la population
+
+
+
+MAP elites
+initialization:	initialiser une grille (---->ARC)
+		generer N individus
+		evaluer ces individus et les ajouter dans l'archive ARC
+		prendre tous les individus present dans l'archive ARC (----> population)
+
+main: pour chaque generation
+      	   selectionner les individus a reproduire parmi la population(---->p0)
+	   faire reproduire,muter et croiser les individus de p0(--->OFFSPRING) 
+	   evaluer les individus de OFFSPRING et les ajouter dans l'archive
+	   prendre tous les individus present dans ARC
+
+SHINE
+initialisation: intialiser un quadtree
+		initialiser une population
+		evaluer et mettre population dans quadtree
+		mettre la population dans liste populationlist en verifiant si lajout dans le qtree a marche
+
+main: pour chaque generation
+      	   selectionner les individus a reproduire parmi la population(---->p0) selon leur profondeur , probabilite et roulette
+	   faire reproduire,muter et croiser les individus de p0(--->OFFSPRING) 
+	   evaluer les individus de OFFSPRING et les ajouter dans le qtree et la liste si lajout dans larbre a marche
+
+      	   
+
+
+	   
+	   
+      	   
