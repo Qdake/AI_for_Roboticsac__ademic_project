@@ -48,7 +48,7 @@ def simulation(env,genotype,display=True):
 
 def choix_a_roulette(population_list, size_pop):
     profondeurs = [ind.profondeur for ind in population_list]
-    distribution = [pow(4,profondeur) for profondeur in profondeurs]
+    distribution = [1/pow(4,profondeur) for profondeur in profondeurs]
     somme = sum(distribution)
     distribution = [i/somme for i in distribution]
     print("population list    ***  ", population_list)
@@ -181,7 +181,7 @@ env = gym.make('FastsimSimpleNavigation-v0')
 but_atteint = False
 #simulation(env,None,True)
 #_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-_,_,_,position_record = es(env,nb_generation=2, size_pop=20,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+_,_,_,position_record = es(env,nb_generation=10, size_pop=50,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
 env.close()
 
 

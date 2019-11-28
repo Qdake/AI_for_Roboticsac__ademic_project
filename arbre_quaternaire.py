@@ -26,10 +26,10 @@ class Quadtree:
         else:
             self.beta = beta_
     def ajout(self,individu):
-        print("**avant ajouter {} content {} nb_noeud: {} ".format(individu.bd,[i.bd for i in self.content],self.nb_individu_stoke_sous_arbre))
+#        print("**avant ajouter {} content {} nb_noeud: {} ".format(individu.bd,[i.bd for i in self.content],self.nb_individu_stoke_sous_arbre))
         
         if self.nb_individu_stoke_noeud < self.beta:
-            print("self.beta = ",self.beta)
+#            print("self.beta = ",self.beta)
             self.nb_individu_stoke_sous_arbre += 1
             self.content.append(individu)
             individu.profondeur = self.profondeur        
@@ -51,11 +51,11 @@ class Quadtree:
                 self.br = Quadtree((self.x0+self.x1)/2,self.x1,self.y0,(self.y0+self.y1)/2,alpha_=self.alpha_user,beta_=self.beta_user)
                 self.br.profondeur = self.profondeur+1
             self.content.append(individu)
-            print("content apres append ",[i.bd for i in self.content])
-            print("********************************************************************\\n")
+ ##           print("content apres append ",[i.bd for i in self.content])
+  #          print("********************************************************************\\n")
             for individu in self.content:
                 x,y = individu.bd
-                print("***[",x,",",y,"]")
+#                print("***[",x,",",y,"]")
                 # bl
                 if self.bl.x0 <= x and x < self.bl.x1 and self.bl.y0 <= y and y < self.bl.y1:
 #                    print("cond bl verifiee")
@@ -63,7 +63,7 @@ class Quadtree:
                     succes = self.bl.ajout(individu)
                     if succes:
                         self.nb_individu_stoke_sous_arbre += 1
-                    print("self.bl.content apres ",[i.bd for i in self.bl.content])
+#                    print("self.bl.content apres ",[i.bd for i in self.bl.content])
 
 
                 # br
@@ -97,11 +97,11 @@ class Quadtree:
             self.nb_individu_stoke_noeud = 0
             self.beta = 0
             return succes
-            print("apres localisation")
-            print("tl : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.tl.content],self.tl.nb_individu_stoke_noeud,self.tl.nb_individu_stoke_sous_arbre))
-            print("tr : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.tr.content],self.tr.nb_individu_stoke_noeud,self.tr.nb_individu_stoke_sous_arbre))
-            print("bl : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.bl.content],self.bl.nb_individu_stoke_noeud,self.bl.nb_individu_stoke_sous_arbre))
-            print("tl : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.br.content],self.br.nb_individu_stoke_noeud,self.br.nb_individu_stoke_sous_arbre))    
+#            print("apres localisation")
+#            print("tl : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.tl.content],self.tl.nb_individu_stoke_noeud,self.tl.nb_individu_stoke_sous_arbre))
+#            print("tr : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.tr.content],self.tr.nb_individu_stoke_noeud,self.tr.nb_individu_stoke_sous_arbre))
+#            print("bl : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.bl.content],self.bl.nb_individu_stoke_noeud,self.bl.nb_individu_stoke_sous_arbre))
+#            print("tl : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.br.content],self.br.nb_individu_stoke_noeud,self.br.nb_individu_stoke_sous_arbre))    
     def pprint(self):
         for i in self.content:
             print(i.bd)
