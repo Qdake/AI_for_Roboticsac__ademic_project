@@ -87,26 +87,23 @@ class Quadtree:
             s += tab + "bl ->" + self.bl.__repr__()
         return s
 
-    def plot(self,total_size):
+    def plot(self):
         x = [e.bd[0] for e in self.content]
         y = [e.bd[1] for e in self.content]
 
         plt.scatter(x,y,color="b")
 
-        plt.plot([(self.x1+self.x0)/2,(self.x1+self.x0)/2],[self.y0,self.y1], 'b-', linewidth=3.0/(self.profondeur+1))
-        plt.plot([self.x0,self.x1],[(self.y1+self.y0)/2,(self.y1+self.y0)/2], 'b-', linewidth=3.0/(self.profondeur+1))
+        plt.plot([float(self.x1+self.x0)/2,float(self.x1+self.x0)/2],[self.y0,self.y1], 'b-', linewidth=3.0/(self.profondeur+1))
+        plt.plot([self.x0,self.x1],[float(self.y1+self.y0)/2,float(self.y1+self.y0)/2], 'b-', linewidth=3.0/(self.profondeur+1))
 
         if self.tr:
-            self.tr.plot(total_size)
+            self.tr.plot()
         if self.tl:
-            self.tl.plot(total_size)
+            self.tl.plot()
         if self.br:
-            self.br.plot(total_size)
+            self.br.plot()
         if self.bl:
-            self.bl.plot(total_size)
-
-        #plt.axvline(x=7.5, ymin=1/2, ymax=1)
-        #plt.axhline(y=7.5)
+            self.bl.plot()
 
 
 
@@ -121,11 +118,14 @@ class Individu:
 t = [np.random.uniform(0,16,size=2) for _ in range(300)]
 
 T = [Individu(i[0],i[1])for i in t]
-b = Quadtree(0,16,0,16,alpha=7,beta=2)
+b = Quadtree(0,16,0,16,alpha=7,beta=1)
 for i in T:
-    b.ajout(i)
+    print(b.ajout(i))
 
 #print(b)
 
-b.plot(15)
+print(b)
+
+b.plot()
+
 plt.show()
