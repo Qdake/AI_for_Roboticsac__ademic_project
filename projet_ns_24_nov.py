@@ -145,8 +145,8 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         if verbose:
             print(logbook.stream)
 
-        if but_atteint:
-            break
+        #if but_atteint:
+        #    break
             
     return offspring,logbook, halloffame,position_record
 
@@ -155,30 +155,32 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
 
 
+if __name__ == "__main__":
 
-st = time.time()
+    st = time.time()
 
-nn=SimpleNeuralControllerNumpy(5,2,2,5)
-#print(len(nn.get_parameters()))
-
-
-display= False
-env = gym.make('FastsimSimpleNavigation-v0')
-
-but_atteint = False
-#simulation(env,None,True)
-#_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-_,_,_,position_record = es(env,nb_generation=2, size_pop=20,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-env.close()
+    nn=SimpleNeuralControllerNumpy(5,2,2,5)
+    #print(len(nn.get_parameters()))
 
 
+    display= False
+    env = gym.make('FastsimSimpleNavigation-v0')
 
-from plot_result import plot
+    but_atteint = False
+    #simulation(env,None,True)
+    #_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    _,_,_,position_record = es(env,nb_generation=100, size_pop=250,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    env.close()
 
-#=================== Traitement du resultat ==========================================================
-nfile = 'log_ns_24_nov/'
-nimg = 'position_record_24_nov_2131'
-plot(position_record,nfile,nimg)  #plot and save
 
-print(but_atteint)
-print(time.time()-st)
+
+    from plot_result import plot
+
+    #=================== Traitement du resultat ==========================================================
+    k = sys.argv[1]
+    nfile = 'log_ns_24_nov/'
+    nimg = 'position_record_24_nov_' + str(k)
+    plot(position_record,nfile,nimg)  #plot and save
+
+    print(but_atteint)
+    print(time.time()-st)

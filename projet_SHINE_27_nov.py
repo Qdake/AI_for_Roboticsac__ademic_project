@@ -16,6 +16,7 @@ import random
 from arbre_quaternaire import Quadtree
 import pickle
 from plot_result import plot
+import sys
 
 def simulation(env,genotype,display=True):
     global but_atteint
@@ -158,8 +159,8 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         if verbose:
             print(logbook.stream)
 
-        if but_atteint:
-            break
+        #if but_atteint:
+        #    print("But atteint")
             
     return population_list,logbook, halloffame,position_record, arbre
 
@@ -167,39 +168,46 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
 
 
+if __name__ == "__main__":
+
+    st = time.time()
 
 
-st = time.time()
-
-nn=SimpleNeuralControllerNumpy(5,2,2,5)
-#print(len(nn.get_parameters()))
+    nn=SimpleNeuralControllerNumpy(5,2,2,5)
+    #print(len(nn.get_parameters()))
 
 
-display= False
-env = gym.make('FastsimSimpleNavigation-v0')
+    display= False
+    env = gym.make('FastsimSimpleNavigation-v0')
 
-but_atteint = False
-#simulation(env,None,True)
-#_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-_,_,_,position_record,qtree = es(env,nb_generation=10, size_pop=50,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-env.close()
+    but_atteint = False
+    #simulation(env,None,True)
+    #_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    _,_,_,position_record,qtree = es(env,nb_generation=100, size_pop=250,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    env.close()
 
 
 
 
-#=================== Traitement du resultat ==========================================================
-nfile = 'log_SHINE_28_nov/'
-nimg = 'position_record_28_nov_1502'
-plot(position_record,nfile,nimg,qtree)  #plot and save
+    #=================== Traitement du resultat ==========================================================
+    k = sys.argv[1]
+    nfolder = 'log_SHINE_28_nov/'
+    nfile = 'position_record_28_nov_' + str(k)
+    nimg = 'position_record_28_nov_' + str(k)
+    ntree = 'tree_record_' + str(k)
+    plot(position_record,nfolder,nimg,qtree)  #plot and save
 
-file = open(nimg+nfile, 'wb')     # le 07 nov  X:Y
-# dump information to that file
-# close the file
-pickle.dump(position_record, file)
-file.close()
+    f = open(nfolder+nfile, 'wb')
+    pickle.dump(position_record, f)
+    f.close()
 
-#qtree.plot()
-#plt.show()
+    f = open(nfolder+ntree, 'wb') 
+    pickle.dump(qtree, f)
+    f.close()
 
-print(but_atteint)
-print(time.time()-st)
+
+    #qtree.plot()
+    #plt.show()
+
+    print(but_atteint)
+    print(time.time()-st)
