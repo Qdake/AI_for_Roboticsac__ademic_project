@@ -14,6 +14,9 @@ from novelty_search import NovArchive
 from novelty_search import updateNovelty
 import random
 from arbre_quaternaire import Quadtree
+import pickle
+from plot_result import plot
+
 def simulation(env,genotype,display=True):
     global but_atteint
     global size_nn
@@ -51,7 +54,7 @@ def choix_a_roulette(population_list, size_pop):
     distribution = [1/pow(4,profondeur) for profondeur in profondeurs]
     somme = sum(distribution)
     distribution = [i/somme for i in distribution]
-    print("population list    ***  ", population_list)
+    #print("population list    ***  ", population_list)
     indices = np.random.choice(list(range(len(population_list))),size_pop,replace = True,p=distribution)
     return [population_list[i] for i in indices]
 def dist(x,y):
@@ -87,7 +90,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
     # initialisation
     population_list = list()
-    arbre = Quadtree(0,600,0,600,type="racine")
+    arbre = Quadtree(0,600,0,600)
     # pour plot heatmap
     position_record = []
 
@@ -95,16 +98,13 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     pop = toolbox.population(size_pop)
 #    print("****2   len(pop) **",len(pop)) #debug
     # simulation
-    print("pop*****", len(pop))
     for ind in pop:
         ind.bd = simulation(env,ind,display=display)
         position_record.append(ind.bd)
-        print("icici")
         succes = arbre.ajout(ind)
-        print("succes ",succes)
         if succes:
             population_list.append(ind)
-            print("population_list:   ",len(population_list))
+            #print("population_list:   ",len(population_list))
 
     # MAJ fitness
     for ind in pop:
@@ -161,7 +161,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         if but_atteint:
             break
             
-    return population_list,logbook, halloffame,position_record
+    return population_list,logbook, halloffame,position_record, arbre
 
 
 
@@ -181,17 +181,25 @@ env = gym.make('FastsimSimpleNavigation-v0')
 but_atteint = False
 #simulation(env,None,True)
 #_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-_,_,_,position_record = es(env,nb_generation=10, size_pop=50,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+_,_,_,position_record,qtree = es(env,nb_generation=10, size_pop=50,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
 env.close()
 
 
 
-from plot_result import plot
 
 #=================== Traitement du resultat ==========================================================
 nfile = 'log_SHINE_28_nov/'
 nimg = 'position_record_28_nov_1502'
-plot(position_record,nfile,nimg)  #plot and save
+plot(position_record,nfile,nimg,qtree)  #plot and save
+
+file = open(nimg+nfile, 'wb')     # le 07 nov  X:Y
+# dump information to that file
+# close the file
+pickle.dump(position_record, file)
+file.close()
+
+#qtree.plot()
+#plt.show()
 
 print(but_atteint)
 print(time.time()-st)
