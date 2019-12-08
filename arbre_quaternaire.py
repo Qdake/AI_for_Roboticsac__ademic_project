@@ -96,8 +96,9 @@ class Quadtree:
         x0, x1, y0, y1 = self.x0, self.x1, imsize - self.y0, imsize - self.y1
 
 
-        plt.plot([float(x1+x0)/2,float(x1+x0)/2],[y0,y1], 'b-', linewidth=3.0/(self.profondeur+1))
-        plt.plot([x0,x1],[float(y1+y0)/2,float(y1+y0)/2], 'b-', linewidth=3.0/(self.profondeur+1))
+        if self.tr:  # si self.tr == None alors ce noeud est un feuille , et pas besoin d'etre separer en quatre
+            plt.plot([float(x1+x0)/2,float(x1+x0)/2],[y0,y1], 'b-', linewidth=3.0/(self.profondeur+1))
+            plt.plot([x0,x1],[float(y1+y0)/2,float(y1+y0)/2], 'b-', linewidth=3.0/(self.profondeur+1))
 
         if self.tr:
             self.tr.plot()

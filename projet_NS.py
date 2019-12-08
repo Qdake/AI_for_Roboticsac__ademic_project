@@ -13,38 +13,7 @@ import matplotlib.pyplot as plt
 from novelty_search import NovArchive
 from novelty_search import updateNovelty
 import random
-def simulation(env,genotype,display=True):
-    global but_atteint
-    global size_nn
-    nn=SimpleNeuralControllerNumpy(5,2,2,5)
-    if genotype != None:
-        nn.set_parameters(genotype)
-    observation = env.reset()
-    if(display):
-        env.enable_display()
-    then = time.time()
-
-    for i in range(1000):
-        env.render()
-        action=nn.predict(observation)
-        action = [i * env.maxVel for i in action]
-        observation,reward,done,info=env.step(action)
-        #print("Step %d Obs=%s  reward=%f  dist. to objective=%f  robot position=%s  End of ep=%s" % (i, str(observation), reward, info["dist_obj"], str(info["robot_pos"]), str(done)))
-        if(display):
-            print("sleep,sleep")
-            time.sleep(0.01)
-        if (info["dist_obj"]<=env.goalRadius):
-            but_atteint = True
-            break
-
-
-    now = time.time()
-
-    #print("%d timesteps took %f seconds" % (i, now - then))
-
-    x,y,theta = env.get_robot_pos()    # x,y,theta    ?? pourquoi theta??? to do
-    return [int(x),int(y)]   
-
+from simulation import simulation
 
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
@@ -121,7 +90,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         #mutation
         for mutant in pop:
             if np.random.random() < pb_mutation:
-                tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
+                tools.mutGaussian(mutant, mu=0.0, sigma=0.000001, indpb=0.1)
                 del mutant.fitness.values
 
         # simulation
@@ -166,10 +135,13 @@ if __name__ == "__main__":
     display= False
     env = gym.make('FastsimSimpleNavigation-v0')
 
+    nb_generation = int(sys.argv[2])
+    size_pop = int(sys.argv[3])
+
     but_atteint = False
     #simulation(env,None,True)
     #_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-    _,_,_,position_record = es(env,nb_generation=100, size_pop=250,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    _,_,_,position_record = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
     env.close()
 
 
@@ -179,8 +151,12 @@ if __name__ == "__main__":
     #=================== Traitement du resultat ==========================================================
     k = sys.argv[1]
     nfile = 'log_ns_24_nov/'
-    nimg = 'position_record_24_nov_' + str(k)
+    nimg = 'position_record_24_nov_' + k
     plot(position_record,nfile,nimg)  #plot and save
+
+    f = open(nfolder+nfile, 'wb')
+    pickle.dump(position_record, f)
+    f.close()
 
     print(but_atteint)
     print(time.time()-st)

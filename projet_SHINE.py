@@ -13,39 +13,22 @@ import matplotlib.pyplot as plt
 from novelty_search import NovArchive
 from novelty_search import updateNovelty
 import random
+from arbre_quaternaire import Quadtree
+import pickle
+from plot_result import plot
+import sys
+from simulation import simulation 
 
-def simulation(env,genotype,display=True):
-    global but_atteint
-    global size_nn
-    nn=SimpleNeuralControllerNumpy(5,2,2,5)
-    if genotype != None:
-        nn.set_parameters(genotype)
-    observation = env.reset()
-    if(display):
-        env.enable_display()
-    then = time.time()
-
-    for i in range(1000):
-        env.render()
-        action=nn.predict(observation)
-        action = [i * env.maxVel for i in action]
-        observation,reward,done,info=env.step(action)
-        #print("Step %d Obs=%s  reward=%f  dist. to objective=%f  robot position=%s  End of ep=%s" % (i, str(observation), reward, info["dist_obj"], str(info["robot_pos"]), str(done)))
-        if(display):
-            print("sleep,sleep")
-            time.sleep(0.01)
-        if (info["dist_obj"]<=env.goalRadius):
-            but_atteint = True
-            break
-
-
-    now = time.time()
-
-    #print("%d timesteps took %f seconds" % (i, now - then))
-
-    x,y,theta = env.get_robot_pos()    # x,y,theta    ?? pourquoi theta??? to do
-    return [int(x),int(y)]    
-
+def choix_a_roulette(population_list, size_pop):
+    profondeurs = [ind.profondeur for ind in population_list]
+    distribution = [1/pow(4,profondeur) for profondeur in profondeurs]
+    somme = sum(distribution)
+    distribution = [i/somme for i in distribution]
+    #print("population list    ***  ", population_list)
+    indices = np.random.choice(list(range(len(population_list))),size_pop,replace = True,p=distribution)
+    return [population_list[i] for i in indices]
+def dist(x,y):
+    return (np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2))
 
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
@@ -54,7 +37,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
     #create class
     creator.create("FitnessMax",base.Fitness,weights=(1.0,))
-    creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,novelty=float)
+    creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=float)
     # toolbox
     toolbox = base.Toolbox()
     toolbox.register("attr_float", np.random.normal)
@@ -74,46 +57,28 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     logbook = tools.Logbook()
     logbook.header = ["gen","nevals"]+ statistics.fields
 
-    # initialisation grid
-    grid = [[None for i in range(600)] for j in range(600) ]  # hard maze est de taille 600*600
-#    for i in range(600):
-#        for j in range(600):
-#            if grid[i][j] != None:
-#                print(i," ",j)
-#    print("fin print1")
- 
+
+    # initialisation
+    population_list = list()
+    arbre = Quadtree(0,600,0,600)
     # pour plot heatmap
     position_record = []
 
     # generer la population initiale
     pop = toolbox.population(size_pop)
-    print("****2   len(pop) **",len(pop)) #debug
+#    print("****2   len(pop) **",len(pop)) #debug
     # simulation
-
     for ind in pop:
         ind.bd = simulation(env,ind,display=display)
         position_record.append(ind.bd)
-        if grid[ind.bd[0]][ind.bd[1]] == None:
-            grid[ind.bd[0]][ind.bd[1]] = ind
-    print("*******2.1 len(pop)******",len(pop))
-    for i in range(600):
-        for j in range(600):
-            if grid[i][j] != None:
-                print(i," ",j)
-    print("fin print2")
-
-    #print(pop[0])
-    #print([ind.bd for ind in pop])
-
-    # MAJ archive
-    pop = [grid[i][j] for i in range(600) for j in range(600) if (grid[i][j] != None)]
-    print("*******3 len(pop)******",len(pop)) #debug
-    arc = updateNovelty(pop,pop,None)    
-
+        succes = arbre.ajout(ind)
+        if succes:
+            population_list.append(ind)
+            #print("population_list:   ",len(population_list))
 
     # MAJ fitness
     for ind in pop:
-        ind.fitness.values = (ind.novelty,)
+        ind.fitness.values = (dist(ind.bd,env.goalPos),)
    
 
     # Update the hall of fame with the generated individuals
@@ -127,7 +92,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         print("generation ",gen)
 
         # Select the next generation individuals
-        pop = toolbox.select(pop, size_pop)    # population est l'ensemble des individus qui presentent dans le grid
+        pop = choix_a_roulette(population_list,size_pop)    # population est l'ensemble des individus qui presentent dans le grid
         # Clone the selected individuals
         pop = list(map(toolbox.clone, pop))  
 
@@ -141,7 +106,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         #mutation
         for mutant in pop:
             if np.random.random() < pb_mutation:
-                tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
+                tools.mutGaussian(mutant, mu=0.0, sigma=0.000001, indpb=0.1)
                 del mutant.fitness.values
 
         # simulation
@@ -149,20 +114,12 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         for ind in invalid_inds:
             ind.bd = simulation(env,ind,display=display)
             position_record.append(ind.bd)
-            if grid[ind.bd[0]][ind.bd[1]] == None:
-                grid[ind.bd[0]][ind.bd[1]] = ind
-
-        # maj archive            
-        pop = [grid[i][j] for i in range(600) for j in range(600) if not(grid[i][j] == None)]
-        arc = updateNovelty(pop,pop,None)    #Update the novelty criterion (including archive update) 
+            if arbre.ajout(ind):
+                population_list.append(ind)
 
         # MAJ fitness
         for ind in pop:
-            ind.fitness.values = (ind.novelty,)
-
-        # pas de remplacement
-        # remplacement
-        # offspring[:] = offspring + pop
+            ind.fitness.values = (dist(ind.bd,env.goalPos),)
 
             # Update the hall of fame with the generated individuals
         halloffame.update(pop)
@@ -172,10 +129,9 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
             print(logbook.stream)
 
         #if but_atteint:
-        #    break
+        #    print("But atteint")
             
-    return pop,logbook, halloffame,position_record
-
+    return population_list,logbook, halloffame,position_record, arbre
 
 
 
@@ -185,29 +141,42 @@ if __name__ == "__main__":
 
     st = time.time()
 
+
     nn=SimpleNeuralControllerNumpy(5,2,2,5)
     #print(len(nn.get_parameters()))
 
 
     display= False
     env = gym.make('FastsimSimpleNavigation-v0')
-
+    nb_generation = int(sys.argv[2])
+    size_pop = int(sys.argv[3])
     but_atteint = False
     #simulation(env,None,True)
     #_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-    _,_,_,position_record = es(env,nb_generation=1000, size_pop=250,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    _,_,_,position_record,qtree = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
     env.close()
 
 
 
-    from plot_result import plot
 
     #=================== Traitement du resultat ==========================================================
     k = sys.argv[1]
-    nfile = 'log_MAPelites_24_nov/'
-    nimg = 'position_record_24_nov_2130' + str(k)
-    plot(position_record,nfile,nimg)  #plot and save
+    nfolder = 'log_SHINE/'
+    nfile = 'position_record_8_decembre' + k
+    nimg = 'position_record_8_decembre' + k
+    ntree = 'tree_record_' + k
+    plot(position_record,nfolder,nimg,qtree)  #plot and save
+
+    f = open(nfolder+nfile, 'wb')
+    pickle.dump(position_record, f)
+    f.close()
+
+    f = open(nfolder+ntree, 'wb') 
+    pickle.dump(qtree, f)
+    f.close()
+
+
+    #qtree.plot()
+    #plt.show()
 
     print(but_atteint)
-    print(time.time()-st)
-
