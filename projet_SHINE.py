@@ -32,7 +32,8 @@ def dist(x,y):
 
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
-    IND_SIZE = 72
+    IND_SIZE = 192 #(5,2,2,10)
+    #IND_SIZE = 72 #(5,2,2,5)
     random.seed()
 
     #create class
@@ -106,7 +107,8 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         #mutation
         for mutant in pop:
             if np.random.random() < pb_mutation:
-                tools.mutGaussian(mutant, mu=0.0, sigma=0.000001, indpb=0.1)
+                tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
+                #tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
                 del mutant.fitness.values
 
         # simulation
@@ -141,11 +143,6 @@ if __name__ == "__main__":
 
     st = time.time()
 
-
-    nn=SimpleNeuralControllerNumpy(5,2,2,5)
-    #print(len(nn.get_parameters()))
-
-
     display= False
     env = gym.make('FastsimSimpleNavigation-v0')
     nb_generation = int(sys.argv[2])
@@ -162,9 +159,9 @@ if __name__ == "__main__":
     #=================== Traitement du resultat ==========================================================
     k = sys.argv[1]
     nfolder = 'log_SHINE/'
-    nfile = 'position_record_8_decembre' + k
-    nimg = 'position_record_8_decembre' + k
-    ntree = 'tree_record_' + k
+    nfile = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    nimg = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    ntree = 'tree_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
     plot(position_record,nfolder,nimg,qtree)  #plot and save
 
     f = open(nfolder+nfile, 'wb')

@@ -14,6 +14,8 @@ from novelty_search import NovArchive
 from novelty_search import updateNovelty
 import random
 from simulation import simulation
+import sys
+import pickle
 
 def simulation(env,genotype,display=True):
     global but_atteint
@@ -50,7 +52,7 @@ def simulation(env,genotype,display=True):
 
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
-    IND_SIZE = 72
+    IND_SIZE = 192
     random.seed()
 
     #create class
@@ -77,18 +79,12 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
     # initialisation grid
     grid = [[None for i in range(600)] for j in range(600) ]  # hard maze est de taille 600*600
-#    for i in range(600):
-#        for j in range(600):
-#            if grid[i][j] != None:
-#                print(i," ",j)
-#    print("fin print1")
- 
+
     # pour plot heatmap
     position_record = []
 
     # generer la population initiale
     pop = toolbox.population(size_pop)
-    print("****2   len(pop) **",len(pop)) #debug
     # simulation
 
     for ind in pop:
@@ -96,19 +92,16 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         position_record.append(ind.bd)
         if grid[ind.bd[0]][ind.bd[1]] == None:
             grid[ind.bd[0]][ind.bd[1]] = ind
-    print("*******2.1 len(pop)******",len(pop))
-    for i in range(600):
-        for j in range(600):
-            if grid[i][j] != None:
-                print(i," ",j)
-    print("fin print2")
+    # for i in range(600):
+    #     for j in range(600):
+    #         if grid[i][j] != None:
+    #             print(i," ",j)
 
     #print(pop[0])
     #print([ind.bd for ind in pop])
 
     # MAJ archive
     pop = [grid[i][j] for i in range(600) for j in range(600) if (grid[i][j] != None)]
-    print("*******3 len(pop)******",len(pop)) #debug
     arc = updateNovelty(pop,pop,None)    
 
 
@@ -142,7 +135,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         #mutation
         for mutant in pop:
             if np.random.random() < pb_mutation:
-                tools.mutGaussian(mutant, mu=0.0, sigma=0.000001, indpb=0.1)
+                tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
                 del mutant.fitness.values
 
         # simulation
@@ -169,8 +162,8 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         halloffame.update(pop)
         record = statistics.compile(pop)
         logbook.record(gen=gen, nevals=len(pop), **record)
-        if verbose:
-            print(logbook.stream)
+        # if verbose:
+        #     print(logbook.stream)
 
         #if but_atteint:
         #    break
@@ -185,10 +178,6 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 if __name__ == "__main__":
 
     st = time.time()
-
-    nn=SimpleNeuralControllerNumpy(5,2,2,5)
-    #print(len(nn.get_parameters()))
-
 
     display= False
     env = gym.make('FastsimSimpleNavigation-v0')
@@ -209,9 +198,9 @@ if __name__ == "__main__":
     #=================== Traitement du resultat ==========================================================
     k = sys.argv[1]
     nfolder = 'log_MAPelites/'
-    nfile ='position_record_' 
-    nimg = 'position_record_' + str(k)
-    plot(position_record,nfile,nimg)  #plot and save
+    nfile = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    nimg = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    plot(position_record,nfolder,nimg,None)  #plot and save
 
     f = open(nfolder+nfile, 'wb')
     pickle.dump(position_record, f)

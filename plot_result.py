@@ -8,16 +8,20 @@ def read_img():
     im.show()    # 展示图片
     print(im.size)   # 输出图片大小
 
-def plot(position_record,nimg,nfile,qtree):
+def plot(position_record,nfolder,nimg,qtree):
     #=================== Traitement du resultat ==========================================================
     # open a file, where you ant to store the data
 
     
-    qtree.plot()
+    if qtree:
+        qtree.plot()
     
     # plot
+    x = [position[0] for position in position_record]
+    y = [600-position[1] for position in position_record]
+
+    plt.scatter(x,y,color="b",marker=".")
     """
-    heatmap = np.zeros((120,120))
     for position in position_record:
         x = int(position[0]//5)
         y = int(position[1]//5)
@@ -26,6 +30,6 @@ def plot(position_record,nimg,nfile,qtree):
 
 
     #plt.imshow(heatmap,cmap=plt.cm.hot_r)
-    plt.savefig(nimg+nfile)
+    plt.savefig(nfolder+nimg)
     plt.show()
     

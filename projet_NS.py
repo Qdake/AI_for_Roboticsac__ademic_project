@@ -14,10 +14,12 @@ from novelty_search import NovArchive
 from novelty_search import updateNovelty
 import random
 from simulation import simulation
+import sys
+import pickle
 
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
-    IND_SIZE = 72
+    IND_SIZE = 192
     random.seed()
 
     #create class
@@ -128,10 +130,6 @@ if __name__ == "__main__":
 
     st = time.time()
 
-    nn=SimpleNeuralControllerNumpy(5,2,2,5)
-    #print(len(nn.get_parameters()))
-
-
     display= False
     env = gym.make('FastsimSimpleNavigation-v0')
 
@@ -150,9 +148,10 @@ if __name__ == "__main__":
 
     #=================== Traitement du resultat ==========================================================
     k = sys.argv[1]
-    nfile = 'log_ns_24_nov/'
-    nimg = 'position_record_24_nov_' + k
-    plot(position_record,nfile,nimg)  #plot and save
+    nfolder ='log_NS/' 
+    nfile = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    nimg = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    plot(position_record,nfolder,nimg,None)  #plot and save
 
     f = open(nfolder+nfile, 'wb')
     pickle.dump(position_record, f)

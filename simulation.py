@@ -3,7 +3,8 @@ from fixed_structure_nn_numpy import SimpleNeuralControllerNumpy
 def simulation(env,genotype,display=True):
     global but_atteint
     global size_nn
-    nn=SimpleNeuralControllerNumpy(5,2,2,5)
+    nn=SimpleNeuralControllerNumpy(5,2,2,5)#72
+    nn=SimpleNeuralControllerNumpy(5,2,2,10)#192
     if genotype != None:
         nn.set_parameters(genotype)
     observation = env.reset()

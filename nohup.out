@@ -18,3 +18,19 @@ Traceback (most recent call last):
   File "projet_SHINE_27_nov.py", line 4, in <module>
     import gym, gym_fastsim
 ImportError: No module named gym
+  File "projet_SHINE.py", line 39
+    creator.create("FitnessMax",base.Fitness,weights=(1.0,))
+                                                           ^
+IndentationError: unindent does not match any outer indentation level
+  File "projet_SHINE.py", line 39
+    creator.create("FitnessMax",base.Fitness,weights=(1.0,))
+                                                           ^
+IndentationError: unindent does not match any outer indentation level
+  File "projet_SHINE.py", line 39
+    creator.create("FitnessMax",base.Fitness,weights=(1.0,))
+                                                           ^
+IndentationError: unindent does not match any outer indentation level
+  File "projet_SHINE.py", line 39
+    creator.create("FitnessMax",base.Fitness,weights=(1.0,))
+                                                           ^
+IndentationError: unindent does not match any outer indentation level
