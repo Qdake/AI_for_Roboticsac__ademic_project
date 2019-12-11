@@ -33,7 +33,6 @@ def dist(x,y):
 def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
     IND_SIZE = 192 #(5,2,2,10)
-    #IND_SIZE = 72 #(5,2,2,5)
     random.seed()
 
     #create class
@@ -47,17 +46,6 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     toolbox.register("population", tools.initRepeat, list,  toolbox.individual)
     toolbox.register("select", tools.selTournament, tournsize=5)
     toolbox.register("mate",tools.cxBlend,alpha=0.1)
-    #statistics
-    halloffame = tools.HallOfFame(1)
-    statistics = tools.Statistics(lambda ind: ind.fitness.values)
-    statistics.register("avg", numpy.mean)
-    statistics.register("std", numpy.std)
-    statistics.register("min", numpy.min)
-    statistics.register("max", numpy.max)
-        #log
-    logbook = tools.Logbook()
-    logbook.header = ["gen","nevals"]+ statistics.fields
-
 
     # initialisation
     population_list = list()
@@ -67,7 +55,6 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
     # generer la population initiale
     pop = toolbox.population(size_pop)
-#    print("****2   len(pop) **",len(pop)) #debug
     # simulation
     for ind in pop:
         ind.bd = simulation(env,ind,display=display)
@@ -75,20 +62,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         succes = arbre.ajout(ind)
         if succes:
             population_list.append(ind)
-            #print("population_list:   ",len(population_list))
 
-    # MAJ fitness
-    for ind in pop:
-        ind.fitness.values = (dist(ind.bd,env.goalPos),)
-   
-
-    # Update the hall of fame with the generated individuals
-    halloffame.update(pop)
-    record = statistics.compile(pop)
-    logbook.record(gen=0, nevals=len(pop), **record)
-    if verbose:
-        print(logbook.stream)
-    
     for gen in range(1, nb_generation+1):
         print("generation ",gen)
 
@@ -101,15 +75,11 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         for child1, child2 in zip(pop[::2], pop[1::2]):
             if np.random.random()<pb_crossover:
                 toolbox.mate(child1,child2)
-                del child1.fitness.values
-                del child2.fitness.values
 
         #mutation
         for mutant in pop:
             if np.random.random() < pb_mutation:
                 tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
-                #tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
-                del mutant.fitness.values
 
         # simulation
         invalid_inds = [ind for ind in pop if ind.fitness.valid == False]
@@ -118,22 +88,8 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
             position_record.append(ind.bd)
             if arbre.ajout(ind):
                 population_list.append(ind)
-
-        # MAJ fitness
-        for ind in pop:
-            ind.fitness.values = (dist(ind.bd,env.goalPos),)
-
-            # Update the hall of fame with the generated individuals
-        halloffame.update(pop)
-        record = statistics.compile(pop)
-        logbook.record(gen=gen, nevals=len(pop), **record)
-        if verbose:
-            print(logbook.stream)
-
-        #if but_atteint:
-        #    print("But atteint")
             
-    return population_list,logbook, halloffame,position_record, arbre
+    return position_record, arbre
 
 
 
@@ -150,7 +106,7 @@ if __name__ == "__main__":
     but_atteint = False
     #simulation(env,None,True)
     #_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-    _,_,_,position_record,qtree = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    position_record,qtree = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
     env.close()
 
 

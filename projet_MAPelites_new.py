@@ -44,15 +44,21 @@ def simulation(env,genotype,display=True):
     return [int(x),int(y)]    
 
 def choix_selon_curiosite(grid, curiosity, h, l, size_pop):
-    grid_list = np.resize(grid,(h*l));
-    curiosity_list = np.resize(curiosity,(h*l));
-    distribution = [1/(c+1) for c in curiosity_list]
-    somme = sum(distribution)
-    distribution = [i/somme for i in distribution]
+    """choisir une population d'individus dans la grille leurs curiosites
+        P[individu] = curiosite_de_individu/somme_curiosite_de_tous_les_individu  
+    """
+    cases_list = []
+    for i in range(h):
+        for j in range(l):
+            cases_list.append((i,j))
+    grid_list = np.resize(grid,(h*l))
+    curiosity_list = np.resize(curiosity,(h*l))
+    somme = sum(curiosity_list)
+    distribution = [c/somme for c in curiosity_list]
     indices = np.random.choice(list(range(len(grid_list))),size_pop,replace = True,p=distribution)
-    return [grid_list[i] for i in indices]
+    return [[cases_list[i],] for i in indices],[grid_list[i] for i in indices]
 
-def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
+def es(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
 
     IND_SIZE = 192
     h_grid = 60
@@ -72,8 +78,8 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     toolbox.register("mate",tools.cxBlend,alpha=0.1)
 
     # initialisation grid
-    grid = [[None for i in range(h_grid)] for j in range(l_grid) ]  # hard maze est de taille 600*600
-    curiosity = [[0 for i in range(h_grid)] for j in range(l_grid) ]
+    grid = np.array([[None for i in range(h_grid)] for j in range(l_grid) ])  # hard maze est de taille 600*600
+    curiosity = np.array([[0 for i in range(h_grid)] for j in range(l_grid) ])
     # pour plot heatmap
     position_record = []
 
@@ -84,44 +90,43 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     for ind in pop:
         ind.bd = simulation(env,ind,display=display)
         position_record.append(ind.bd)
-        if grid[ind.bd[0]][ind.bd[1]] == None:
-            grid[ind.bd[0]][ind.bd[1]] = ind
-            curiosity[ind.bd[0]][ind.bd[1]] = 10
+        if grid[int(ind.bd[0]/10)][int(ind.bd[1]/10)] == None:
+            grid[int(ind.bd[0]/10)][int(ind.bd[1]/10)] = ind
+            curiosity[int(ind.bd[0]/10)][int(ind.bd[1]/10)] = 1
 
     # main boucle
     for gen in range(nb_generation):
         print("generation ",gen)
 
         # Select the next generation individuals
-        pop = choix_selon_curiosite(grid,curiosity,h_grid,l_grid, size_pop)    # population est l'ensemble des individus qui presentent dans le grid
-
+        parents_pos_in_grid,pop = choix_selon_curiosite(grid,curiosity,h_grid,l_grid, size_pop)    # population est l'ensemble des individus qui presentent dans le grid
         # Clone the selected individuals
         pop = list(map(toolbox.clone, pop))  
 
         # crossover
-        for child1, child2 in zip(pop[::2], pop[1::2]):
+        indices = list(range(len(pop)))
+        for i,j in zip(indices[::2], indices[1::2]):
             if np.random.random()<pb_crossover:
-                toolbox.mate(child1,child2)
-                del child1.fitness.values
-                del child2.fitness.values
+                toolbox.mate(pop[i],pop[j])
+                parents_pos_in_grid[i].append(parents_pos_in_grid[j][0])
+                parents_pos_in_grid[j].append(parents_pos_in_grid[i][0])
 
         #mutation
         for mutant in pop:
             if np.random.random() < pb_mutation:
                 tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
-                del mutant.fitness.values
 
         # simulation and MAJ de grid et curiosity
-        invalid_inds = [ind for ind in pop if ind.fitness.valid == False]
-        for ind in invalid_inds:
-            ind.bd = simulation(env,ind,display=display)
-            position_record.append(ind.bd)
-            if grid[ind.bd[0]][ind.bd[1]] == None:
-                grid[ind.bd[0]][ind.bd[1]] = ind
-                curiosity[ind.bd[0]][ind.bd[1]] = 10;
+        for i in range(len(pop)):
+            pop[i].bd = simulation(env,pop[i],display=display)
+            position_record.append(pop[i].bd)
+            if grid[int(pop[i].bd[0]/10)][int(pop[i].bd[1]/10)] == None:
+                grid[int(pop[i].bd[0]/10)][int(pop[i].bd[1]/10)] = pop[i]
+                for parent_pos in parents_pos_in_grid[i]:
+                    curiosity[parent_pos[0]][parent_pos[1]] += 1   # bonus si enfant atteint une position non exploree auparavant
             else:
-                curiosity[ind.bd[0]][ind.bd[1]] = min(0,curiosity[ind.bd[0]][ind.bd[1]]-1)
-
+                for parent_pos in parents_pos_in_grid[i]:
+                    curiosity[parent_pos[0]][parent_pos[1]] = max(0,curiosity[parent_pos[0]][parent_pos[1]]-0.5)
     return grid,position_record
 
 
@@ -151,11 +156,15 @@ if __name__ == "__main__":
     k = sys.argv[1]
     nfolder = 'log_MAPelites/'
     nfile = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    nfile_grid = 'grid' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
     nimg = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
     plot(position_record,nfolder,nimg,None)  #plot and save
 
     f = open(nfolder+nfile, 'wb')
     pickle.dump(position_record, f)
+    f.close()
+    f = open(nfolder+nfile_grid,"wb")
+    pickle.dump(grid,f)
     f.close()
     
     print(but_atteint)
