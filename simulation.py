@@ -22,8 +22,7 @@ def simulation(env,genotype,display=True):
             print("sleep,sleep")
             time.sleep(0.01)
         if (info["dist_obj"]<=env.goalRadius):
-            but_atteint = True
-            break
+            return [0,0]
 
 
 #    now = time.time()

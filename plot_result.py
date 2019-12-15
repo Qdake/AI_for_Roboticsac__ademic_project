@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.image as mpimg
 
 from PIL import Image
 
@@ -12,13 +13,18 @@ def plot(position_record,nfolder,nimg,qtree):
     #=================== Traitement du resultat ==========================================================
     # open a file, where you ant to store the data
 
-    
+    img = mpimg.imread('maze_hard.pbm','PBM')
+    plt.imshow(img)
+
+
+
     if qtree:
         qtree.plot()
     
     # plot
     x = [position[0] for position in position_record]
-    y = [600-position[1] for position in position_record]
+    y = [position[1] for position in position_record]
+    #y = [600-position[1] for position in position_record]
 
     plt.scatter(x,y,color="b",marker=".")
     """

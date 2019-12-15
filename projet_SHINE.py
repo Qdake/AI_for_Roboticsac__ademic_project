@@ -34,6 +34,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
 
     IND_SIZE = 192 #(5,2,2,10)
     random.seed()
+    nb_gen_found = nb_generation
 
     #create class
     creator.create("FitnessMax",base.Fitness,weights=(1.0,))
@@ -52,6 +53,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     arbre = Quadtree(0,600,0,600)
     # pour plot heatmap
     position_record = []
+    populations = []
 
     # generer la population initiale
     pop = toolbox.population(size_pop)
@@ -69,7 +71,9 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         # Select the next generation individuals
         pop = choix_a_roulette(population_list,size_pop)    # population est l'ensemble des individus qui presentent dans le grid
         # Clone the selected individuals
-        pop = list(map(toolbox.clone, pop))  
+        pop = list(map(toolbox.clone, pop))
+        populations.append(pop)
+
 
         # crossover
         for child1, child2 in zip(pop[::2], pop[1::2]):
@@ -88,8 +92,15 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
             position_record.append(ind.bd)
             if arbre.ajout(ind):
                 population_list.append(ind)
+            if ind.bd == [0,0] and nb_gen_found == nb_generation:
+                nb_gen_found = gen
+                print("==========================================")
+                print(gen)
+                print("==========================================")
+                return position_record, arbre, nb_gen_found
+
             
-    return position_record, arbre
+    return position_record, arbre, nb_gen_found
 
 
 
@@ -100,19 +111,56 @@ if __name__ == "__main__":
     st = time.time()
 
     display= False
-    env = gym.make('FastsimSimpleNavigation-v0')
     nb_generation = int(sys.argv[2])
     size_pop = int(sys.argv[3])
-    but_atteint = False
     #simulation(env,None,True)
     #_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-    position_record,qtree = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    #position_record,qtree = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    #env.close()
+    k = sys.argv[1]
+    nb_gen_found_log = []
+    nfolder = 'log_SHINE/'
+        
+    env = gym.make('FastsimSimpleNavigation-v0')
+    position_record,qtree,nb_gen_found = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
     env.close()
+
+    nfolder = 'log_SHINE/'
+    nfile = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    nimg = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    ntree = 'tree_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
+    plot(position_record,nfolder,nimg,qtree)  #plot and save
+
+    #qtree.plot()
+    #plt.show()
+    #plot(position_record,nfolder,nimg,qtree)  #plot and save
+
+    f = open(nfolder+nfile, 'wb')
+    pickle.dump(position_record, f)
+    f.close()
+
+    f = open(nfolder+ntree, 'wb') 
+    pickle.dump(qtree, f)
+    f.close()
+
+    nb_gen_found_log.append(nb_gen_found)
+
+    print(nb_gen_found_log)
+
+    #qtree.plot()
+    #plt.show()
+
+    f = open(nfolder+'nb_gen_found'+k, 'wb')
+    pickle.dump(nb_gen_found_log, f)
+    f.close
+
+
 
 
 
 
     #=================== Traitement du resultat ==========================================================
+    """
     k = sys.argv[1]
     nfolder = 'log_SHINE/'
     nfile = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
@@ -131,5 +179,4 @@ if __name__ == "__main__":
 
     #qtree.plot()
     #plt.show()
-
-    print(but_atteint)
+    """

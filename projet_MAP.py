@@ -36,7 +36,7 @@ def simulation(env,genotype,display=True):
             time.sleep(0.01)
         if (info["dist_obj"]<=env.goalRadius):
             but_atteint = True
-            break
+            return [int(x),int(y)]
 
     now = time.time()
 
@@ -53,7 +53,6 @@ def choix_selon_curiosite(grid, curiosity, h, l, size_pop):
             cases_list.append((i,j))
     grid_list = np.resize(grid,(h*l))
     curiosity_list = np.resize(curiosity,(h*l))
-    curiosity_list = [np.exp(c) for c in curiosity_list]
     somme = sum(curiosity_list)
     distribution = [c/somme for c in curiosity_list]
     indices = np.random.choice(list(range(len(grid_list))),size_pop,replace = True,p=distribution)
@@ -124,10 +123,10 @@ def es(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.3, nb_generation=100, dis
             if grid[int(pop[i].bd[0]/10)][int(pop[i].bd[1]/10)] == None:
                 grid[int(pop[i].bd[0]/10)][int(pop[i].bd[1]/10)] = pop[i]
                 for parent_pos in parents_pos_in_grid[i]:
-                    curiosity[parent_pos[0]][parent_pos[1]] += 1   # bonus si enfant atteint une position non exploree auparavant
+                    curiosity[parent_pos[0]][parent_pos[1]] += 10   # bonus si enfant atteint une position non exploree auparavant
             else:
                 for parent_pos in parents_pos_in_grid[i]:
-                    curiosity[parent_pos[0]][parent_pos[1]] = max(1,curiosity[parent_pos[0]][parent_pos[1]]-0.5)
+                    curiosity[parent_pos[0]][parent_pos[1]] = max(0.001,curiosity[parent_pos[0]][parent_pos[1]]-1)
     return grid,position_record
 
 
@@ -144,13 +143,12 @@ if __name__ == "__main__":
 
     nb_generation = int(sys.argv[2])
     size_pop = int(sys.argv[3])
-
     but_atteint = False
     grid,position_record = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
     env.close()
 
 
-
+    but_atteint = False
     from plot_result import plot
 
     #=================== Traitement du resultat ==========================================================
