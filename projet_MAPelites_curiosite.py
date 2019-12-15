@@ -30,7 +30,7 @@ def choix_selon_curiosite(grid, curiosity, h, l, size_pop):
         distribution = [c/somme for c in curiosity_list]  # distribution selon curiosite
     else:
         somme = sum([1 if grid_list[i]!= None else 0 for i in range(len(grid_list))]) # compter nombre d'individu dans la grille
-        distribution = [1/somme for i in range(len(grid_list))] # distribution uniforme
+        distribution = [1/somme if grid_list[i] != None else 0 for i in range(len(grid_list))] # distribution uniforme
     indices = np.random.choice(list(range(len(grid_list))),size_pop,replace = True,p=distribution)
     return [[cases_list[i],] for i in indices],[grid_list[i] for i in indices]
 
