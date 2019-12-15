@@ -30,7 +30,7 @@ def choix_a_roulette(population_list, size_pop):
 def dist(x,y):
     return (np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2))
 
-def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False, verbose=False):
+def SHINE(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False):
 
     IND_SIZE = 192 #(5,2,2,10)
     random.seed()
@@ -59,7 +59,7 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
     pop = toolbox.population(size_pop)
     # simulation
     for ind in pop:
-        ind.bd = simulation(env,ind,display=display)
+        ind.bd,but_atteint = simulation(env,ind,display=display)
         position_record.append(ind.bd)
         succes = arbre.ajout(ind)
         if succes:
@@ -88,19 +88,18 @@ def es(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, dis
         # simulation
         invalid_inds = [ind for ind in pop if ind.fitness.valid == False]
         for ind in invalid_inds:
-            ind.bd = simulation(env,ind,display=display)
+            ind.bd,but_atteint = simulation(env,ind,display=display)
             position_record.append(ind.bd)
             if arbre.ajout(ind):
                 population_list.append(ind)
-            if ind.bd == [0,0] and nb_gen_found == nb_generation:
-                nb_gen_found = gen
-                print("==========================================")
+            if but_atteint:
+                print("===== but atteint =====================================")
                 print(gen)
                 print("==========================================")
-                return position_record, arbre, nb_gen_found
+                return position_record, arbre, gen
 
             
-    return position_record, arbre, nb_gen_found
+    return position_record, arbre, None
 
 
 
@@ -114,15 +113,12 @@ if __name__ == "__main__":
     nb_generation = int(sys.argv[2])
     size_pop = int(sys.argv[3])
     #simulation(env,None,True)
-    #_,_,_,position_record = es(env,nb_generation=10, size_pop=100,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
-    #position_record,qtree = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
     #env.close()
     k = sys.argv[1]
-    nb_gen_found_log = []
     nfolder = 'log_SHINE/'
         
     env = gym.make('FastsimSimpleNavigation-v0')
-    position_record,qtree,nb_gen_found = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display,verbose=True)
+    position_record,qtree,nb_gen_found = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display)
     env.close()
 
     nfolder = 'log_SHINE/'

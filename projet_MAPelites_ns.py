@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import gym, gym_fastsim
-import numpy as np
 from fixed_structure_nn_numpy import SimpleNeuralControllerNumpy
+import time
+import numpy as np
 from deap import base
 from deap import creator
 from deap import tools
@@ -16,7 +17,7 @@ from simulation import simulation
 import sys
 import pickle
 
-def novelty_search(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False):
+def MAPelites_ns(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.9, nb_generation=250, display=False):
 
     IND_SIZE = 192
     random.seed()
@@ -33,6 +34,8 @@ def novelty_search(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generat
     toolbox.register("select", tools.selTournament, tournsize=5)
     toolbox.register("mate",tools.cxBlend,alpha=0.1)
 
+    # initialisation grid
+    grid = np.array([[None for i in range(60)] for j in range(60) ])
     # pour plot heatmap
     position_record = []
 
@@ -43,23 +46,23 @@ def novelty_search(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generat
     for ind in pop:
         ind.bd,but_atteint = simulation(env,ind,display=display)
         position_record.append(ind.bd)
- 
-    #print(pop[0])
-    #print([ind.bd for ind in pop])
+        if grid[int(ind.bd[0]/10)][int(ind.bd[1]/10)] == None:
+            grid[int(ind.bd[0]/10)][int(ind.bd[1]/10)] = ind
 
     # MAJ archive
+    pop = [grid[i][j] for i in range(60) for j in range(60) if (grid[i][j] != None)]
     arc = updateNovelty(pop,pop,None)    
+
 
     # MAJ fitness
     for ind in pop:
         ind.fitness.values = (ind.novelty,)
-    
-    offspring = pop
+
     for gen in range(1, nb_generation+1):
         print("generation ",gen)
 
         # Select the next generation individuals
-        pop = toolbox.select(offspring, size_pop)
+        pop = toolbox.select(pop, size_pop)    # population est l'ensemble des individus qui presentent dans le grid
         # Clone the selected individuals
         pop = list(map(toolbox.clone, pop))  
 
@@ -73,25 +76,31 @@ def novelty_search(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generat
         #mutation
         for mutant in pop:
             if np.random.random() < pb_mutation:
-                tools.mutGaussian(mutant, mu=0.0, sigma=0.000001, indpb=0.1)
+                tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
                 del mutant.fitness.values
 
         # simulation
         invalid_inds = [ind for ind in pop if ind.fitness.valid == False]
         for ind in invalid_inds:
             ind.bd,but_atteint = simulation(env,ind,display=display)
-            position_record.append(ind.bd)
+            # si le but est atteint
             if but_atteint:
-                print("==========================================")
-                print(gen)
-                print("==========================================")
-                return position_record,arc, gen
-        # MAJ archive
-        arc = updateNovelty(pop,pop,arc,k=15)  #Update the novelty criterion (including archive update) 
+                return position_record,grid,gen 
+            position_record.append(ind.bd)
+            if grid[int(ind.bd[0]/10)][int(ind.bd[1]/10)] == None:
+                grid[int(ind.bd[0]/10)][int(ind.bd[1]/10)] = ind
+
+        # maj archive            
+        pop = [grid[i][j] for i in range(60) for j in range(60) if not(grid[i][j] == None)]
+        arc = updateNovelty(pop,pop,None)    #Update the novelty criterion (including archive update) 
+
         # MAJ fitness
         for ind in pop:
-            ind.fitness.values = (ind.novelty,)          
-        # remplacement
-        offspring[:] = offspring + pop
+            ind.fitness.values = (ind.novelty,)
+
             
-    return position_record,arc,None
+    return position_record,grid,None
+
+
+
+

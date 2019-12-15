@@ -22,7 +22,7 @@ def simulation(env,genotype,display=True):
             print("sleep,sleep")
             time.sleep(0.01)
         if (info["dist_obj"]<=env.goalRadius):
-            return [0,0]
+            return env.get_robot_pos()[0:-1],True
 
 
 #    now = time.time()
@@ -30,4 +30,4 @@ def simulation(env,genotype,display=True):
     #print("%d timesteps took %f seconds" % (i, now - then))
 
     x,y,theta = env.get_robot_pos()    # x,y,theta    ?? pourquoi theta??? to do
-    return [int(x),int(y)]    
+    return [int(x),int(y)],False  
