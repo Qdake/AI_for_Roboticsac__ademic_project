@@ -1,26 +1,22 @@
-
-import gym, gym_fastsim
-import time
-import numpy as np
-from fixed_structure_nn_numpy import SimpleNeuralControllerNumpy
-from deap import base
-from deap import creator
-from deap import tools
-import numpy 
-import matplotlib.pyplot as plt
-from novelty_search import NovArchive
-from novelty_search import updateNovelty
-import random
-from arbre_quaternaire import Quadtree
 import pickle
 from plot_result import plot_position_record
 from plot_result import plot_qtree
 import sys
-from simulation import simulation 
+import gym
 from projet_MAPelites_curiosite import MAPelites_curiosite
 from projet_MAPelites_ns import MAPelites_ns
 from projet_NS import novelty_search
 from projet_SHINE import SHINE
+from deap import base
+from deap import creator
+
+## creat class Individual
+IND_SIZE = 192 #(5,2,2,10)
+#create class
+creator.create("FitnessMax",base.Fitness,weights=(1.0,))
+creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=float)
+
+
 ########################
 ##### parametres de l'isntance
 #########################
