@@ -50,8 +50,7 @@ def MAPelites_curiosite(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.3, nb_ge
     toolbox.register("individual", tools.initRepeat, creator.Individual,
                  toolbox.attr_float, n=IND_SIZE)
     toolbox.register("population", tools.initRepeat, list,  toolbox.individual)
-    toolbox.register("select", tools.selTournament, tournsize=5)
-    toolbox.register("mate",tools.cxBlend,alpha=0.1)
+#    toolbox.register("select", tools.selTournament, tournsize=5)
 
     # initialisation grid
     grid = np.array([[None for i in range(h_grid)] for j in range(l_grid) ])  # hard maze est de taille 600*600
@@ -83,7 +82,8 @@ def MAPelites_curiosite(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.3, nb_ge
         indices = list(range(len(pop)))
         for i,j in zip(indices[::2], indices[1::2]):
             if np.random.random()<pb_crossover:
-                toolbox.mate(pop[i],pop[j])
+                #toolbox.mate(pop[i],pop[j])
+                tools.cxBlend(pop[i],pop[j],alpha=0.1)
                 parents_pos_in_grid[i].append(parents_pos_in_grid[j][0])
                 parents_pos_in_grid[j].append(parents_pos_in_grid[i][0])
 
@@ -95,11 +95,15 @@ def MAPelites_curiosite(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.3, nb_ge
         # simulation and MAJ de grid et curiosity
         for i in range(len(pop)):
             ind.bd,but_atteint = simulation(env,pop[i],display=display)
+            position_record.append(pop[i].bd)
             # si le but est atteint
             if but_atteint:
+                print("***********************************************************************")
+                print("***************************but atteint MAPelites_curiosite *************************")
+                print(gen)
+                print("***********************************************************************")
                 return position_record,grid,gen 
 
-            position_record.append(pop[i].bd)
             # MAJ de la curiosite
             if grid[int(pop[i].bd[0]/10)][int(pop[i].bd[1]/10)] == None:
                 # si atteint une case vide
@@ -111,36 +115,4 @@ def MAPelites_curiosite(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.3, nb_ge
                 for parent_pos in parents_pos_in_grid[i]:
                     curiosity[parent_pos[0]][parent_pos[1]] = max(0,curiosity[parent_pos[0]][parent_pos[1]]-1)
     return position_record,grid,None
-
-
-
-
-
-
-if __name__ == "__main__":
-
-    display= False
-    env = gym.make('FastsimSimpleNavigation-v0')
-    nb_generation = int(sys.argv[2])
-    size_pop = int(sys.argv[3])
-    grid,position_record,gen_but_atteint = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display)
-    env.close()
-
-    from plot_result import plot
-
-    #=================== Traitement du resultat ==========================================================
-    k = sys.argv[1]
-    nfolder = 'log_MAPelites/'
-    nfile = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
-    nfile_grid = 'grid' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
-    nimg = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
-    plot(position_record,nfolder,nimg,None)  #plot and save
-
-    f = open(nfolder+nfile, 'wb')
-    pickle.dump(position_record, f)
-    f.close()
-    f = open(nfolder+nfile_grid,"wb")
-    pickle.dump(grid,f)
-    f.close()
-
 

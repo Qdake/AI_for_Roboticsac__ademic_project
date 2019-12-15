@@ -15,7 +15,6 @@ from novelty_search import updateNovelty
 import random
 from arbre_quaternaire import Quadtree
 import pickle
-from plot_result import plot
 import sys
 from simulation import simulation 
 
@@ -45,8 +44,6 @@ def SHINE(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, 
     toolbox.register("individual", tools.initRepeat, creator.Individual,
                  toolbox.attr_float, n=IND_SIZE)
     toolbox.register("population", tools.initRepeat, list,  toolbox.individual)
-    toolbox.register("select", tools.selTournament, tournsize=5)
-    toolbox.register("mate",tools.cxBlend,alpha=0.1)
 
     # initialisation
     population_list = list()
@@ -78,7 +75,7 @@ def SHINE(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, 
         # crossover
         for child1, child2 in zip(pop[::2], pop[1::2]):
             if np.random.random()<pb_crossover:
-                toolbox.mate(child1,child2)
+                tools.cxBlend(child1,child2,alpha=0.1)
 
         #mutation
         for mutant in pop:
@@ -93,86 +90,10 @@ def SHINE(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, 
             if arbre.ajout(ind):
                 population_list.append(ind)
             if but_atteint:
-                print("===== but atteint =====================================")
+                print("***********************************************************************")
+                print("***************************but atteint SHINE *************************")
                 print(gen)
-                print("==========================================")
+                print("***********************************************************************")
                 return position_record, arbre, gen
 
-            
     return position_record, arbre, None
-
-
-
-
-
-if __name__ == "__main__":
-
-    st = time.time()
-
-    display= False
-    nb_generation = int(sys.argv[2])
-    size_pop = int(sys.argv[3])
-    #simulation(env,None,True)
-    #env.close()
-    k = sys.argv[1]
-    nfolder = 'log_SHINE/'
-        
-    env = gym.make('FastsimSimpleNavigation-v0')
-    position_record,qtree,nb_gen_found = es(env,nb_generation=nb_generation, size_pop=size_pop,pb_crossover=0.1,pb_mutation=0.9,display=display)
-    env.close()
-
-    nfolder = 'log_SHINE/'
-    nfile = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
-    nimg = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
-    ntree = 'tree_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
-    plot(position_record,nfolder,nimg,qtree)  #plot and save
-
-    #qtree.plot()
-    #plt.show()
-    #plot(position_record,nfolder,nimg,qtree)  #plot and save
-
-    f = open(nfolder+nfile, 'wb')
-    pickle.dump(position_record, f)
-    f.close()
-
-    f = open(nfolder+ntree, 'wb') 
-    pickle.dump(qtree, f)
-    f.close()
-
-    nb_gen_found_log.append(nb_gen_found)
-
-    print(nb_gen_found_log)
-
-    #qtree.plot()
-    #plt.show()
-
-    f = open(nfolder+'nb_gen_found'+k, 'wb')
-    pickle.dump(nb_gen_found_log, f)
-    f.close
-
-
-
-
-
-
-    #=================== Traitement du resultat ==========================================================
-    """
-    k = sys.argv[1]
-    nfolder = 'log_SHINE/'
-    nfile = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
-    nimg = 'position_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
-    ntree = 'tree_record_' + k +"_nbgen_"+sys.argv[2]+"_sizepop_"+sys.argv[3]
-    plot(position_record,nfolder,nimg,qtree)  #plot and save
-
-    f = open(nfolder+nfile, 'wb')
-    pickle.dump(position_record, f)
-    f.close()
-
-    f = open(nfolder+ntree, 'wb') 
-    pickle.dump(qtree, f)
-    f.close()
-
-
-    #qtree.plot()
-    #plt.show()
-    """

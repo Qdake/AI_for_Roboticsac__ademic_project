@@ -30,9 +30,6 @@ def novelty_search(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generat
     toolbox.register("individual", tools.initRepeat, creator.Individual,
                  toolbox.attr_float, n=IND_SIZE)
     toolbox.register("population", tools.initRepeat, list,  toolbox.individual)
-    toolbox.register("select", tools.selTournament, tournsize=5)
-    toolbox.register("mate",tools.cxBlend,alpha=0.1)
-
     # pour plot heatmap
     position_record = []
 
@@ -59,14 +56,15 @@ def novelty_search(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generat
         print("generation ",gen)
 
         # Select the next generation individuals
-        pop = toolbox.select(offspring, size_pop)
+        pop = tools.selTournament(offspring, size_pop,5)
         # Clone the selected individuals
         pop = list(map(toolbox.clone, pop))  
 
         # crossover
         for child1, child2 in zip(pop[::2], pop[1::2]):
             if np.random.random()<pb_crossover:
-                toolbox.mate(child1,child2)
+                #toolbox.mate(child1,child2)
+                tools.cxBlend(child1,child2,alpha=0.1)
                 del child1.fitness.values
                 del child2.fitness.values
 
@@ -82,9 +80,10 @@ def novelty_search(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generat
             ind.bd,but_atteint = simulation(env,ind,display=display)
             position_record.append(ind.bd)
             if but_atteint:
-                print("==========================================")
+                print("***********************************************************************")
+                print("***************************but atteint NS *************************")
                 print(gen)
-                print("==========================================")
+                print("***********************************************************************")
                 return position_record,arc, gen
         # MAJ archive
         arc = updateNovelty(pop,pop,arc,k=15)  #Update the novelty criterion (including archive update) 

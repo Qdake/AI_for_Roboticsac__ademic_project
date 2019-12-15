@@ -5,21 +5,20 @@ import matplotlib.image as mpimg
 from PIL import Image
 
 def read_img():
-    im = Image.open("maze_hard.pbm")    # 读取文件
-    im.show()    # 展示图片
-    print(im.size)   # 输出图片大小
+    im = Image.open("maze_hard.pbm")    
+    im.show()    
+    print(im.size)   
+def plot_qtree(qtree,nfolder,nimg):
+    qtree.plot()
+    plt.savefig(nfolder+nimg)
+    plt.show()
 
-def plot(position_record,nfolder,nimg,qtree):
+def plot_position_record(position_record,nfolder,nimg):
     #=================== Traitement du resultat ==========================================================
     # open a file, where you ant to store the data
 
     img = mpimg.imread('maze_hard.pbm','PBM')
     plt.imshow(img)
-
-
-
-    if qtree:
-        qtree.plot()
     
     # plot
     x = [position[0] for position in position_record]

@@ -13,7 +13,8 @@ from novelty_search import updateNovelty
 import random
 from arbre_quaternaire import Quadtree
 import pickle
-from plot_result import plot
+from plot_result import plot_position_record
+from plot_result import plot_qtree
 import sys
 from simulation import simulation 
 from projet_MAPelites_curiosite import MAPelites_curiosite
@@ -50,21 +51,27 @@ if algo_name == 'MAPelites_ns':
 # fermer gym
 env.close()
 
+
+print("nb***",nb_gen_found)
 ##########################################
 ##### sauvegarder le resultat dans un pickle 
 ##########################################
 nfolder = 'log/'+algo_name+'/'
 nfile = algo_name + '_' + k +"_gen_" + sys.argv[2] + "_size_" + sys.argv[3]
 nimg =  algo_name + '_' + k +"_gen_" + sys.argv[2] + "_size_" + sys.argv[3]
-## plot
-if algo_name == 'SHINE':
-    plot(position_record,nfolder,nimg,qtree)  #plot and save
-else:
-    plot(position_record,nfolder,nimg,None)
+
 ## pickle
-data = [position_record,nb_generation]
+data = [position_record,nb_gen_found]
 if algo_name == 'SHINE':
     data.append(qtree)
+## data = [position_record,nb_gen_found] 
+## ou data = [position_record,nb_gen_found,qtree] if algo_name == 'SHINE' 
 f = open(nfolder+nfile, 'wb')
-pickle.dump(position_record, f)
+pickle.dump(data, f)
 f.close()
+## plot 
+#positions_record
+plot_position_record(position_record,nfolder,nimg)  #plot and save
+# qtree
+if algo_name == 'SHINE':
+    plot_qtree(qtree,nfolder,nimg)  #plot and save
