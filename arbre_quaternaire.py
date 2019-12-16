@@ -91,7 +91,7 @@ class Quadtree:
         x = [e.bd[0] for e in self.content]
         y = [imsize-e.bd[1] for e in self.content]
 
-        plt.scatter(x,y,color="b",marker=".")
+        #plt.scatter(x,y,color="b",marker=".")
 
         x0, x1, y0, y1 = self.x0, self.x1, imsize - self.y0, imsize - self.y1
 
@@ -117,18 +117,13 @@ class Individu:
     def __init__(self,x,y):
         self.bd=(x,y)
 
-"""
-#t = [[2,14],[9,15],[11.5,15.5],[10.5,14.5],[11.5,14.5],[12,14.5],[5,4],[6,7],[12.5,2],[14,5],[13,6],[15,9],[14.5,9.1],[13,9],(13,14),[14,15]]
-t = [np.random.uniform(0,16,size=2) for _ in range(300)]
 
-T = [Individu(i[0],i[1])for i in t]
-b = Quadtree(0,16,0,16,alpha=7,beta=1)
-for i in T:
-    print(b.ajout(i))
+#t = [[2,14],[9,15],[11.5,15.5],[10.5,14.5],[11.5,14.5],[12,14.5],[5,4],[6,7],[12.5,2],[14,5],[13,6],[15,9],[14.5,9.1],[13,9],(13,14),[14,15]]
+#t = [np.random.uniform(0,16,size=2) for _ in range(300)]
+
+#T = [Individu(i[0],i[1])for i in t]
+#b = Quadtree(0,16,0,16,alpha=7,beta=1)
 
 #print(b)
 
-b.plot()
-
-plt.show()
-"""
+#b.plot()
