@@ -20,7 +20,8 @@ creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=
 nfolder = 'log/MAPelites/'
 #nfolder = 'log/MAPelites_ns/'
 #nfolder = 'log/NS/'
-nfile = 'MAPelites_0_gen_1000_size_250MAPelites'
+#nfile = 'MAPelites_0_gen_1000_size_250MAPelites'
+nfile = 'MAPelites_5_gen_8_size_'
 #data = pickle.load( open( "log/MAPelites/MAPelites_0_gen_1000_size_250", "rb" ) )
 data = pickle.load( open( nfolder+nfile, "rb" ) )
 

@@ -94,7 +94,7 @@ def MAPelites_curiosite(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.3, nb_ge
 
         # simulation and MAJ de grid et curiosity
         for i in range(len(pop)):
-            ind.bd,but_atteint = simulation(env,pop[i],display=display)
+            pop[i].bd,but_atteint = simulation(env,pop[i],display=display)
             position_record.append(pop[i].bd)
             # si le but est atteint
             if but_atteint:

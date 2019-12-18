@@ -86,8 +86,8 @@ for k in range(n1,n2):
     ##### sauvegarder le resultat dans un pickle 
     ##########################################
     nfolder = 'log/'+algo_name+'/'
-    nfile = algo_name + '_' + str(k) +"_gen_" + sys.argv[2] + "_size_"
-    nimg =  algo_name + '_' + str(k) +"_gen_" + sys.argv[2] + "_size_"
+    nfile = algo_name + '_' + str(k) +"_gen_1000_size_250"
+    nimg =  algo_name + '_' + str(k) +"_gen_1000_size_250"
     
     ## data = [position_record,nb_gen_found] 
     ## ou data = [position_record,nb_gen_found,qtree] if algo_name == 'SHINE' 
