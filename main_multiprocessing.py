@@ -73,8 +73,10 @@ cpus = multiprocessing.cpu_count()
 pool = multiprocessing.Pool(cpus)
 results = []
 for k in range(n1,n2):
-    result = pool.apply_async(run,args=(k,4,10,algo_name,))
+    result = pool.apply_async(run,args=(k,1000,250,algo_name,))
     results.append(result)
+
+
 pool.close()
 pool.join()
 
@@ -84,8 +86,8 @@ for k in range(n1,n2):
     ##### sauvegarder le resultat dans un pickle 
     ##########################################
     nfolder = 'log/'+algo_name+'/'
-    nfile = algo_name + '_' + str(k) +"_gen_" + sys.argv[2] + "_size_" + sys.argv[3]
-    nimg =  algo_name + '_' + str(k) +"_gen_" + sys.argv[2] + "_size_" + sys.argv[3]
+    nfile = algo_name + '_' + str(k) +"_gen_" + sys.argv[2] + "_size_"
+    nimg =  algo_name + '_' + str(k) +"_gen_" + sys.argv[2] + "_size_"
     
     ## data = [position_record,nb_gen_found] 
     ## ou data = [position_record,nb_gen_found,qtree] if algo_name == 'SHINE' 

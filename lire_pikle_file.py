@@ -5,6 +5,7 @@ Created on Sun Dec 15 19:28:10 2019
 
 @author: qiu-adm
 """
+import numpy as np
 import pickle
 from deap import base
 from deap import creator
@@ -16,11 +17,11 @@ IND_SIZE = 192 #(5,2,2,10)
 creator.create("FitnessMax",base.Fitness,weights=(1.0,))
 creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=float)
 # data
-#nfolder = 'log/MAPelites/'
+nfolder = 'log/MAPelites/'
 #nfolder = 'log/MAPelites_ns/'
-nfolder = 'log/NS/'
-nfile = 'NS_2_gen_5_size_10'
-#data = pickle.load( open( "log/MAPelites/MAPelites_2_gen_5_size_10", "rb" ) )
+#nfolder = 'log/NS/'
+nfile = 'MAPelites_0_gen_1000_size_250MAPelites'
+#data = pickle.load( open( "log/MAPelites/MAPelites_0_gen_1000_size_250", "rb" ) )
 data = pickle.load( open( nfolder+nfile, "rb" ) )
 
 # position_record
@@ -35,9 +36,13 @@ if len(data)==3:
 
 #qtree = pickle.load( open( "log_SHINE/tree_record_121201_nbgen_300_sizepop_250", "rb" ) )
 
-plot_position_record(position_record,nfolder,nimg)
+plot_position_record(position_record,nfolder,nfile)
 if 'qtree' in dir(): # si qtree est definie
-    plot_qtree(qtree,nfolder,nimg)
+    plot_qtree(qtree,nfolder,nfile)
+
+for pos in position_record:
+    if np.sqrt((pos[0]-60)**2+(pos[1]-60)**2)<=7:
+        print(pos)
 
 print("but atteint ? nb_generation = ",nb_gen_found)
 
