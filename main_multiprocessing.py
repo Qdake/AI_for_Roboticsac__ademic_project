@@ -63,25 +63,11 @@ def run(k,nb_generation,size_pop,algo_name):
         
     return data
 
-    
-n1 = int(sys.argv[1])
-n2 = int(sys.argv[2])
-algo_name = sys.argv[3]
 
-multiprocessing.freeze_support()
-cpus = multiprocessing.cpu_count()
-pool = multiprocessing.Pool(cpus)
-results = []
-for k in range(n1,n2):
-    result = pool.apply_async(run,args=(k,1000,250,algo_name,))
-    results.append(result)
+def run_and_save(k,nb_generation,size_pop,algo_name):
 
+    data = run(k,nb_generation,size_pop,algo_name)
 
-pool.close()
-pool.join()
-
-results = [result.get() for result in results]
-for k in range(n1,n2):
     ##########################################
     ##### sauvegarder le resultat dans un pickle 
     ##########################################
@@ -92,11 +78,29 @@ for k in range(n1,n2):
     ## data = [position_record,nb_gen_found] 
     ## ou data = [position_record,nb_gen_found,qtree] if algo_name == 'SHINE' 
     f = open(nfolder+nfile, 'wb')
-    pickle.dump(results[k], f)
+    pickle.dump(data, f)
     f.close()
     ## plot 
     #positions_record
-    plot_position_record(results[k][0],nfolder,nimg)  #plot and save
+    plot_position_record(data[0],nfolder,nimg)  #plot and save
     # qtree
     if algo_name == 'SHINE':
-        plot_qtree(results[k][2],nfolder,nimg)  #plot and save   
+        plot_qtree(data[2],nfolder,nimg)  #plot and save   
+
+
+
+    
+n1 = int(sys.argv[1])
+n2 = int(sys.argv[2])
+algo_name = sys.argv[3]
+
+multiprocessing.freeze_support()
+cpus = multiprocessing.cpu_count()
+pool = multiprocessing.Pool(cpus)
+
+for k in range(n1,n2):
+    pool.apply_async(run,args=(k,10,50,algo_name,))
+
+
+pool.close()
+pool.join()
