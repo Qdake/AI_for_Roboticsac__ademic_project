@@ -97,12 +97,14 @@ def MAPelites_curiosite(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.3, nb_ge
             pop[i].bd,but_atteint = simulation(env,pop[i],display=display)
             position_record.append(pop[i].bd)
             # si le but est atteint
+            """
             if but_atteint:
                 print("***********************************************************************")
                 print("***************************but atteint MAPelites_curiosite *************************")
                 print(gen)
                 print("***********************************************************************")
                 return position_record,grid,gen 
+            """
 
             # MAJ de la curiosite
             if grid[int(pop[i].bd[0]/10)][int(pop[i].bd[1]/10)] == None:

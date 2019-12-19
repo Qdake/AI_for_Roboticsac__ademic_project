@@ -3,6 +3,15 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
+from deap import base
+from deap import creator
+
+## creat class Individual
+IND_SIZE = 192 #(5,2,2,10)
+#create class
+creator.create("FitnessMax",base.Fitness,weights=(1.0,))
+creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=float)
+
 BPLT = False
 
 def dist(x,y):
@@ -14,31 +23,34 @@ def win(pos):
 win_indexes = []
 
 shine_win_indexes = []
-for k in range(14, 24):
+for k in range(0, 16):
     if k != 18:
-        position_record = pickle.load( open( "log_SHINE/position_record_"+str(k)+"_nbgen_100_sizepop_250", "rb" ) )
-        for i, pos in enumerate(position_record):
+        position_record = pickle.load( open( "log/SHINE/SHINE_"+str(k)+"_gen_16_size_SHINE", "rb" ) )
+        for i, pos in enumerate(position_record[0]):
             if win(pos):
                 shine_win_indexes.append(i // 250)
                 break
 
 win_indexes.append(shine_win_indexes)
 
+
 me_win_indexes = []
-for k in range(1, 11):
+for k in range(1, 20):
     if k != 9:
-        position_record = pickle.load( open( "log_MAPelites/position_record_"+str(k)+"_nbgen_100_sizepop_250", "rb" ) )
-        for i, pos in enumerate(position_record):
+        position_record = pickle.load( open( "log/MAPelites/MAPelites_"+str(k)+"_gen_1000_size_250", "rb" ) )
+        for i, pos in enumerate(position_record[0]):
             if win(pos):
                 me_win_indexes.append(i // 250)
                 break
 
 win_indexes.append(me_win_indexes)
 
-ns_win_indexes = []
-for k in range(1, 6):
-    position_record = pickle.load( open( "log_NS/position_record_"+str(k)+"_sigma1__nbgen_100_sizepop_250", "rb" ) )
-    for i, pos in enumerate(position_record):
+
+ns_win_indexes = [] #[699,616,82,461,426,372]
+
+for k in [4,5,6,7,8,10,11,12]:
+    position_record = pickle.load( open( "log/NS_2/NS_"+str(k)+"_gen_1000_size_250", "rb" ) )
+    for i, pos in enumerate(position_record[0]):
         if win(pos):
             ns_win_indexes.append(i // 250)
             break
@@ -53,7 +65,7 @@ if BPLT:
         patch.set_facecolor(color)
 else:
     for wi, c in zip(win_indexes, colors):
-        plt.plot([sum(1 for e in wi if e < i)/len(wi) for i in range(100)],
+        plt.plot([sum(1 for e in wi if e < i)/len(wi) for i in range(600)],
         color = c)
     plt.legend(["SHINE", "MAP-Elites", "Novelty search"])
 

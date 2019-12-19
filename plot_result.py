@@ -13,7 +13,7 @@ def read_img():
 def plot_qtree(qtree,nfolder,nimg):
     qtree.plot()
     plt.savefig(nfolder+nimg)
-    plt.show()
+    #plt.show()
 
 def plot_position_record(position_record,nfolder,nimg):
     #=================== Traitement du resultat ==========================================================
@@ -23,9 +23,8 @@ def plot_position_record(position_record,nfolder,nimg):
     plt.imshow(img)
 
     # plot
-    x = [position[0] for position in position_record]
-    y = [position[1] for position in position_record]
-    #y = [600-position[1] for position in position_record]
+    x = [int(position[0]) for position in position_record]
+    y = [int(position[1]) for position in position_record]
 
     heatmap = np.zeros((120,120))
     for position in position_record:
@@ -52,10 +51,8 @@ def plot_position_record(position_record,nfolder,nimg):
 
     plt.scatter(new_x,new_y,color=colors,marker=".")
 
-
-    #plt.imshow(heatmap,cmap=plt.cm.hot_r)
     plt.savefig(nfolder+nimg)
-    plt.show()
+    #plt.show()
 
 
 # TO REMOVE

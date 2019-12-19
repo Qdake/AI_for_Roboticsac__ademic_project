@@ -34,3 +34,19 @@ IndentationError: unindent does not match any outer indentation level
     creator.create("FitnessMax",base.Fitness,weights=(1.0,))
                                                            ^
 IndentationError: unindent does not match any outer indentation level
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1
+display=1

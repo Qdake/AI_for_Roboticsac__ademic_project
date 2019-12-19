@@ -71,7 +71,7 @@ def run_and_save(k,nb_generation,size_pop,algo_name):
     ##########################################
     ##### sauvegarder le resultat dans un pickle 
     ##########################################
-    nfolder = 'log/'+algo_name+'/'
+    nfolder = 'log/'+algo_name+'_2/'
     nfile = algo_name + '_' + str(k) +"_gen_1000_size_250"
     nimg =  algo_name + '_' + str(k) +"_gen_1000_size_250"
     
@@ -88,19 +88,20 @@ def run_and_save(k,nb_generation,size_pop,algo_name):
         plot_qtree(data[2],nfolder,nimg)  #plot and save   
 
 
+if __name__ == "__main__":
+    n1 = int(sys.argv[1])
+    n2 = int(sys.argv[2])
+    algo_name = sys.argv[3]
 
-    
-n1 = int(sys.argv[1])
-n2 = int(sys.argv[2])
-algo_name = sys.argv[3]
+    multiprocessing.freeze_support()
+    cpus = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(cpus-1)
+    #results = []
 
-multiprocessing.freeze_support()
-cpus = multiprocessing.cpu_count()
-pool = multiprocessing.Pool(cpus)
-
-for k in range(n1,n2):
-    pool.apply_async(run,args=(k,10,50,algo_name,))
+    for k in range(n1,n2):
+        pool.apply_async(run_and_save,args=(k,800,250,algo_name,))
 
 
-pool.close()
-pool.join()
+    pool.close()
+    pool.join()
+
