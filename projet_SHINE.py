@@ -8,7 +8,6 @@ from fixed_structure_nn_numpy import SimpleNeuralControllerNumpy
 from deap import base
 from deap import creator
 from deap import tools
-import numpy 
 import matplotlib.pyplot as plt
 from novelty_search import NovArchive
 from novelty_search import updateNovelty
@@ -19,14 +18,19 @@ import sys
 from simulation import simulation 
 
 def choix_a_roulette(population_list, size_pop):
+    ''' choix a roulette en utilisant la distribution proportionnelle a la profondeur des individu 
+        P(individu) = pow( individu.profondeur, 4) 
+    '''
     profondeurs = [ind.profondeur for ind in population_list]
     distribution = [1/pow(4,profondeur) for profondeur in profondeurs]
     somme = sum(distribution)
     distribution = [i/somme for i in distribution]
-    #print("population list    ***  ", population_list)
     indices = np.random.choice(list(range(len(population_list))),size_pop,replace = True,p=distribution)
     return [population_list[i] for i in indices]
+
 def dist(x,y):
+    ''' calculer la distance euclidienne entre x et y
+    ''' 
     return (np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2))
 
 def SHINE(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False):
@@ -89,6 +93,7 @@ def SHINE(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, 
             position_record.append(ind.bd)
             if arbre.ajout(ind):
                 population_list.append(ind)
+            # si le but est atteint, le programme s'arrete
             if but_atteint:
                 print("***********************************************************************")
                 print("***************************but atteint SHINE *************************")

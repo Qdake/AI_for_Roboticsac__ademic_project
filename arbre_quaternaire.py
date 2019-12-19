@@ -23,14 +23,20 @@ class Quadtree:
         self.br = None
 
     def ajout(self,individu):
-#        print("**avant ajouter {} content {} nb_noeud: {} ".format(individu.bd,[i.bd for i in self.content],self.nb_individu_stoke_sous_arbre))
-
+        '''ajouter un induvidu dans l'arbre
+           si l'ajout est reussi, retourner True, False sinon
+        '''
+        
+        # si le noeud considere ne contient pas le nombre maximum d'individu
         if self.nb_individu_stoke_noeud < self.beta:
             self.content.append(individu)
             individu.profondeur = self.profondeur
             self.nb_individu_stoke_noeud += 1
             return True
+        # sinon generer 4 noeuds-enfant de ce noeud et stocker l'individu en question
+        # et tous les autres individus stockes dans ce noeud dans l'un de ces noeuds-enfants
         else:
+            #  generer 4 noeuds-enfant de ce noeud
             if self.profondeur == self.alpha:
                 return False
             if self.tl == None:
@@ -43,8 +49,8 @@ class Quadtree:
                 self.br = Quadtree((self.x0+self.x1)/2,self.x1,self.y0,(self.y0+self.y1)/2,alpha=self.alpha,beta=self.beta,profondeur=self.profondeur+1)
             self.content.append(individu)
 
-            #print("content apres append ",[i.bd for i in self.content])
-            #print("********************************************************************\\n")
+            # stocker l'individu en question
+            # et tous les autres individus stockes dans ce noeud dans l'un de ces noeuds-enfants            
             for individu in self.content:
                 x,y = individu.bd
 
@@ -64,17 +70,16 @@ class Quadtree:
             self.nb_individu_stoke_noeud = 0
             self.beta = 0
             return success
-#            print("apres localisation")
-#            print("tl : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.tl.content],self.tl.nb_individu_stoke_noeud,self.tl.nb_individu_stoke_sous_arbre))
-#            print("tr : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.tr.content],self.tr.nb_individu_stoke_noeud,self.tr.nb_individu_stoke_sous_arbre))
-#            print("bl : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.bl.content],self.bl.nb_individu_stoke_noeud,self.bl.nb_individu_stoke_sous_arbre))
-#            print("tl : {} nb_noeud {} nb_sa {}".format([i.bd for i in self.br.content],self.br.nb_individu_stoke_noeud,self.br.nb_individu_stoke_sous_arbre))
 
     def pprint(self):
+        '''afficher la position de tous les individus stockes dans ce noeud
+        '''
         for i in self.content:
             print(i.bd)
 
     def __repr__(self):
+        ''' afficher la representation du sous-arbre
+        '''
         s = str([e.bd for e in self.content]) + "\n"
         tab = ("\t" * self.profondeur)
         if self.tr :
@@ -89,7 +94,6 @@ class Quadtree:
 
     def plot(self,imsize=600):
         x0, x1, y0, y1 = self.x0, self.x1, self.y0, self.y1
-
 
         if self.tr:  # si self.tr == None alors ce noeud est un feuille , et pas besoin d'etre separer en quatre
             plt.plot([float(x1+x0)/2,float(x1+x0)/2],[y0,y1], 'g-', linewidth=3.0/(self.profondeur+1))

@@ -52,7 +52,7 @@ def plot_position_record(position_record,nfolder,nimg):
     plt.scatter(new_x,new_y,color=colors,marker=".")
 
     plt.savefig(nfolder+nimg)
-    #plt.show()
+    plt.show()
 
 
 # TO REMOVE
