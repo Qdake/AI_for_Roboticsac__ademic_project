@@ -8,7 +8,6 @@ import numpy as np
 from deap import base
 from deap import creator
 from deap import tools
-import numpy 
 import matplotlib.pyplot as plt
 import random
 from simulation import simulation
@@ -34,7 +33,7 @@ def choix_selon_curiosite(grid, curiosity, h, l, size_pop):
     indices = np.random.choice(list(range(len(grid_list))),size_pop,replace = True,p=distribution)
     return [[cases_list[i],] for i in indices],[grid_list[i] for i in indices]
 
-def MAPelites_curiosite(env,size_pop=50,pb_crossover=0.1, pb_mutation=0.3, nb_generation=100, display=False):
+def MAPelites_curiosite(env,size_pop=250,pb_crossover=0.1, pb_mutation=0.9, nb_generation=1000, display=False):
 
     IND_SIZE = 192
     h_grid = 60

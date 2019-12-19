@@ -7,7 +7,6 @@ from fixed_structure_nn_numpy import SimpleNeuralControllerNumpy
 from deap import base
 from deap import creator
 from deap import tools
-import numpy 
 import matplotlib.pyplot as plt
 from novelty_search import NovArchive
 from novelty_search import updateNovelty
@@ -16,14 +15,14 @@ from simulation import simulation
 import sys
 import pickle
 
-def novelty_search(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, display=False):
+def novelty_search(env,size_pop=250,pb_crossover=0.1, pb_mutation=0.9, nb_generation=1000, display=False):
 
     IND_SIZE = 192
     random.seed()
 
     #create class
     creator.create("FitnessMax",base.Fitness,weights=(1.0,))
-    creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,novelty=float)
+    creator.create("Individual",list,fitness=creator.FitnessMax,bd=list,novelty=float)
     # toolbox
     toolbox = base.Toolbox()
     toolbox.register("attr_float", np.random.normal)
@@ -71,7 +70,7 @@ def novelty_search(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generat
         #mutation
         for mutant in pop:
             if np.random.random() < pb_mutation:
-                tools.mutGaussian(mutant, mu=0.0, sigma=0.000001, indpb=0.1)
+                tools.mutGaussian(mutant, mu=0.0, sigma=1, indpb=0.1)
                 del mutant.fitness.values
 
         # simulation

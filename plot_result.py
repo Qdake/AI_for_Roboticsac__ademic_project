@@ -2,6 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.image as mpimg
 import pickle
+from deap import base
+from deap import creator
+## creat class Individual
+IND_SIZE = 192 #(5,2,2,10)
+#create class
+creator.create("FitnessMax",base.Fitness,weights=(1.0,))
+creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=float)
+
 
 from PIL import Image
 
@@ -52,9 +60,12 @@ def plot_position_record(position_record,nfolder,nimg):
     plt.scatter(new_x,new_y,color=colors,marker=".")
 
     plt.savefig(nfolder+nimg)
-    plt.show()
-
+    #plt.show()
 
 # TO REMOVE
-#pr = pickle.load( open( "log_SHINE/position_record_final_1__nbgen_400_sizepop_250", "rb" ) )
-#plot_position_record(pr, "log_SHINE", "testimg0")
+if __name__ == "__main__":
+    path= "log/MAPelites/"
+    file="MAPelites_genFix_400_size_250"
+    with open( path+file, "rb" ) as f:
+        pr = pickle.load(f)
+        plot_position_record(pr[0], path, file) 

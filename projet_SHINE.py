@@ -41,7 +41,7 @@ def SHINE(env,size_pop=50,pb_crossover=0.6, pb_mutation=0.3, nb_generation=100, 
 
     #create class
     creator.create("FitnessMax",base.Fitness,weights=(1.0,))
-    creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=float)
+    creator.create("Individual",list,fitness=creator.FitnessMax,bd=list,profondeur=float)
     # toolbox
     toolbox = base.Toolbox()
     toolbox.register("attr_float", np.random.normal)

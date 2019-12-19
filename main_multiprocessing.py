@@ -11,7 +11,6 @@ from plot_result import plot_position_record
 from plot_result import plot_qtree
 import sys
 from projet_MAPelites_curiosite import MAPelites_curiosite
-from projet_MAPelites_ns import MAPelites_ns
 from projet_NS import novelty_search
 from projet_SHINE import SHINE
 import multiprocessing
@@ -71,7 +70,7 @@ def run_and_save(k,nb_generation,size_pop,algo_name):
     ##########################################
     ##### sauvegarder le resultat dans un pickle 
     ##########################################
-    nfolder = 'log/'+algo_name+'_2/'
+    nfolder = 'log/'+algo_name+"/"
     nfile = algo_name + '_' + str(k) +"_gen_1000_size_250"
     nimg =  algo_name + '_' + str(k) +"_gen_1000_size_250"
     
@@ -95,11 +94,11 @@ if __name__ == "__main__":
 
     multiprocessing.freeze_support()
     cpus = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(cpus-1)
+    pool = multiprocessing.Pool(cpus)
     #results = []
 
     for k in range(n1,n2):
-        pool.apply_async(run_and_save,args=(k,800,250,algo_name,))
+        pool.apply_async(run_and_save,args=(k,1000,250,algo_name,))
 
 
     pool.close()
