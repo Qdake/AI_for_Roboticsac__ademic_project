@@ -12,7 +12,7 @@ IND_SIZE = 192 #(5,2,2,10)
 creator.create("FitnessMax",base.Fitness,weights=(1.0,))
 creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=float)
 
-BPLT = False
+BPLT = True
 
 def dist(x,y):
     return (np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2))
@@ -21,11 +21,11 @@ def win(pos):
     return dist(pos,(60,60)) < 7
 
 win_indexes = []
-
+# SHINE
 shine_win_indexes = []
 for k in range(0, 16):
     if k != 18:
-        position_record = pickle.load( open( "log/SHINE/SHINE_"+str(k)+"_gen_16_size_SHINE", "rb" ) )
+        position_record = pickle.load( open( "log/SHINE/SHINE_"+str(k)+"_gen_1000_size_250", "rb" ) )
         for i, pos in enumerate(position_record[0]):
             if win(pos):
                 shine_win_indexes.append(i // 250)
@@ -33,7 +33,7 @@ for k in range(0, 16):
 
 win_indexes.append(shine_win_indexes)
 
-
+# MAP elites
 me_win_indexes = []
 for k in range(1, 20):
     if k != 9:
@@ -45,11 +45,11 @@ for k in range(1, 20):
 
 win_indexes.append(me_win_indexes)
 
-
+# NS
 ns_win_indexes = [] #[699,616,82,461,426,372]
 
-for k in [4,5,6,7,8,10,11,12]:
-    position_record = pickle.load( open( "log/NS_2/NS_"+str(k)+"_gen_1000_size_250", "rb" ) )
+for k in range(0,16):
+    position_record = pickle.load( open( "log/NS/NS_"+str(k)+"_gen_1000_size_250", "rb" ) )
     for i, pos in enumerate(position_record[0]):
         if win(pos):
             ns_win_indexes.append(i // 250)
@@ -69,4 +69,5 @@ else:
         color = c)
     plt.legend(["SHINE", "MAP-Elites", "Novelty search"])
 
+plt.savefig("analyse/couverture")
 plt.show()

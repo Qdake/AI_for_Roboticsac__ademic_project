@@ -5,7 +5,6 @@ import sys
 import gym
 import matplotlib.pyplot as plt
 from projet_MAPelites_curiosite import MAPelites_curiosite
-from projet_MAPelites_ns import MAPelites_ns
 from projet_NS import novelty_search
 from projet_SHINE import SHINE
 from deap import base
@@ -16,8 +15,6 @@ IND_SIZE = 192 #(5,2,2,10)
 #create class
 creator.create("FitnessMax",base.Fitness,weights=(1.0,))
 creator.create("Individual",list,fitness=creator.FitnessMax,pos=list,profondeur=float)
-
-
 ########################
 ##### parametres de l'isntance
 #########################
@@ -29,10 +26,13 @@ algo_name = sys.argv[4]
 pb_crossover = 0.1
 pb_mutation = 0.9
 
+
 ##################################
 #######  main
 ##################################
 if __name__ == "__main__":
+
+
     # init gym
     env = gym.make('FastsimSimpleNavigation-v0')
     # type d'algo dispo
