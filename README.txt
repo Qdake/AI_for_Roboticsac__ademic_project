@@ -1,3 +1,7 @@
+DEPENDANCE:
+- libfastsim:  https://github.com/jbmouret/libfastsim
+- gym
+- deap
 
 UTILISATION :
 
@@ -10,4 +14,4 @@ L'execution de l'un des trois algorithmes passe par le "main" et nécessite de f
 Par exemple, la ligne suivante lance SHINE sur 30 générations avec 150 individus :
 $ python main.py TEST 30 150 SHINE
 
-Le fichier de log sera créé dans le dossier "log/SHINE/" et son nom sera "SHINE_TEST_gen_30_size_150". Une image résultant de l'exploration sera également fournie.
+Le programme s'arrete si la position finale est atteinte ou si le nombre de génération fixé est dépassé. Le fichier de log sera créé dans le dossier "log/SHINE/" et son nom sera "SHINE_TEST_gen_30_size_150". Une image résultant de l'exploration sera également fournie.
