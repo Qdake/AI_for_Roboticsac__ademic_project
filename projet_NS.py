@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 import gym, gym_fastsim
 import numpy as np
 from fixed_structure_nn_numpy import SimpleNeuralControllerNumpy

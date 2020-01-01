@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 import gym, gym_fastsim
 import time
 import numpy as np

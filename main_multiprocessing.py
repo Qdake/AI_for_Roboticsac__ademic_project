@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Dec 15 21:18:05 2019
-
-@author: qiu-adm
-"""
 import gym
 import pickle
 from plot_result import plot_position_record
